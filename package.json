@@ -1,6 +1,6 @@
 {
-  "name": "prismock",
-  "version": "1.0.0",
+  "name": "@pkgverse/prismock",
+  "version": "2.0.0-beta.1",
   "description": "A mock for PrismaClient, dedicated to unit testing.",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -8,6 +8,7 @@
   "repository": "https://github.com/morintd/prismock",
   "author": "Teddy Morin <morin.td@gmail.com> (http://morintd.medium.com/)",
   "license": "MIT",
+  "packageManager": "bun@1.2.16",
   "keywords": [
     "test",
     "prisma"
