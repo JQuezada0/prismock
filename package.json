@@ -6,7 +6,7 @@
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
   "repository": "https://github.com/morintd/prismock",
-  "author": "Teddy Morin <morin.td@gmail.com> (http://morintd.medium.com/)",
+  "author": "Johnil Quezada <johnilquezada@gmail.com>",
   "license": "MIT",
   "packageManager": "bun@1.2.16",
   "keywords": [
