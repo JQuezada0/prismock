@@ -1,7 +1,13 @@
-export default {
+/** @jest-config-loader ts-node */
+import type { Config } from "jest";
+import { createDefaultEsmPreset } from 'ts-jest'
+
+const config: Config = {
+  ...createDefaultEsmPreset(),
   globalSetup: './testing/global-setup.ts',
-  preset: 'ts-jest',
+  maxWorkers: 1,
   testEnvironment: 'node',
-  collectCoverage: true,
-  maxWorkers: 4,
 };
+
+
+export default config;

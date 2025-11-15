@@ -41,7 +41,7 @@ export async function simulateSeed(prisma: PrismaClient) {
 export async function resetDb() {
   return new Promise<void>((resolve, reject) => {
     exec(
-      'mongosh mongodb://admin:admin@localhost:27017 --eval "use prismock" --eval "db.dropDatabase()" && yarn prisma db push && yarn prisma db seed',
+      'mongosh mongodb://admin:admin@localhost:27017 --eval "use prismock" --eval "db.dropDatabase()" && bun prisma db push && bun prisma db seed',
       (error) => {
         if (error) reject(error);
         resolve();

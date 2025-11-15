@@ -25,7 +25,7 @@
     "mock"
   ],
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   },
   "scripts": {
     "build": "bun build:main & bun build:module & bun build:types",
@@ -33,9 +33,9 @@
     "build:module": "bun build src/index.ts --outfile=dist/index.mjs --format=esm --target=node --external=@prisma/*",
     "build:types": "tsgo -p tsconfig.json",
     "lint": "eslint",
-    "test": "jest src/ --maxWorkers=1",
+    "test": "jest",
     "db:init": "prisma migrate dev --name init",
-    "db:reset": "prisma migrate reset -f",
+    "db:reset": "bun prisma migrate reset -f",
     "test:coverage": "jest --coverage",
     "prepare": "husky install"
   },
@@ -79,6 +79,7 @@
     "ts-jest": "29.4.1",
     "ts-node": "10.9.2",
     "ts-toolbelt": "9.6.0",
+    "tsx": "4.20.6",
     "typescript-eslint": "8.46.0"
   },
   "files": [
