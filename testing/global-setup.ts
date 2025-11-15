@@ -3,7 +3,7 @@ import { resolve } from 'path';
 
 import { Config } from '@jest/types';
 
-module.exports = async function (_globalConfig: Config.GlobalConfig, projectConfig: Config.ProjectConfig) {
+export default async function (_globalConfig: Config.GlobalConfig, projectConfig: Config.ProjectConfig) {
   await copyPrismaClient(projectConfig.rootDir);
 };
 
