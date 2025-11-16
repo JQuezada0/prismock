@@ -27,7 +27,7 @@ export async function simulateSeed(prisma: PrismaClient) {
 
 export async function resetDb() {
   return new Promise<void>((resolve, reject) => {
-    exec('yarn db:reset', (error) => {
+    exec('bun db:reset', (error) => {
       if (error) reject(error);
       resolve();
     });
