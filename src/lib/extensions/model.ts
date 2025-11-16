@@ -36,7 +36,7 @@ export function applyModelExtensions(
           return target[prop as keyof typeof target];
         }
 
-        return (extensionMethod as Function).bind(receiver);
+        return (extensionMethod as (...args: any[]) => any).bind(receiver);
       },
     });
 

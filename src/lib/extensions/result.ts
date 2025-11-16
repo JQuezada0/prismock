@@ -9,7 +9,7 @@ type ModelMap = {
 }
 
 type ResultExtensionModelMap = DynamicResultExtensionArgs<
-  ModelMap & { $allModels: {} },
+  ModelMap & { $allModels: object },
   Prisma.TypeMap
 >
 
