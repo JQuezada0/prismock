@@ -141,7 +141,11 @@ function buildResultExtendedModel<ModelName extends keyof ModelMap>(
   const proxiedModel = new Proxy(model, {
     get(target, prop, _receiver) {
       if (prop in proxiedMethods) {
-        return proxiedMethods[prop as keyof typeof proxiedMethods]?.bind(target)
+        const v = proxiedMethods[prop as keyof typeof proxiedMethods]
+
+        if (typeof v === "function") {
+          return v.bind(target)
+        }
       }
 
       return target[prop as keyof typeof target]
