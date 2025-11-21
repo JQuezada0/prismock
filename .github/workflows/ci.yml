@@ -135,6 +135,7 @@ jobs:
 
     env:
       DATABASE_URL: mongodb://admin:admin@localhost:27017/prismock?authSource=admin
+      TEST_DB_TYPE: mongodb
 
     steps:
       - name: Checkout code
