@@ -30,7 +30,7 @@ describe("client-model-extension", () => {
 
       expect(users).toHaveLength(1)
       expect(users[0]).toMatchObject({
-        id: 1,
+        id: process.env.TEST_DB_TYPE === "mongodb" ? "1" : 1,
         email: "extendedClient@foobar.com",
       })
     })
