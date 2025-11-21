@@ -1,15 +1,17 @@
 {
   "name": "@pkgverse/prismock",
-  "version": "2.0.0-beta.2",
+  "version": "2.0.0-beta.1",
   "description": "A mock for PrismaClient, dedicated to unit testing.",
-  "repository": "https://github.com/JQuezada0/prismock",
+  "repository": {
+    "url": "https://github.com/JQuezada0/prismock"
+  },
   "author": "Johnil Quezada <johnilquezada@gmail.com>",
   "license": "MIT",
   "packageManager": "bun@1.2.16",
   "type": "module",
-  "main": "build/index.cjs",
-  "typings": "build/index.d.ts",
-  "module": "build/index.mjs",
+  "main": "dist/index.cjs",
+  "typings": "dist/index.d.ts",
+  "module": "dist/index.mjs",
   "exports": {
     "./": {
       "import": "./dist/index.mjs",
@@ -36,8 +38,7 @@
     "test": "jest",
     "db:init": "prisma migrate dev --name init",
     "db:reset": "bun prisma migrate reset -f",
-    "test:coverage": "jest --coverage",
-    "prepare": "husky install"
+    "test:coverage": "jest --coverage"
   },
   "devDependencies": {
     "@commitlint/cli": "19.8.1",
@@ -83,18 +84,15 @@
     "typescript-eslint": "8.46.0"
   },
   "files": [
-    "build/main",
-    "build/module",
+    "dist/**/*.{cjs,mjs,d.ts}",
     "!**/*.spec.*",
     "!**/*.json",
     "CHANGELOG.md",
     "LICENSE",
     "README.md"
   ],
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
+  "publishConfig": {
+    "access": "public"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
