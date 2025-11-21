@@ -13,7 +13,8 @@ describe("client-model-extension", () => {
           user: {
             findManyExtended: () => {
               const user = mockDeep<Prisma.$UserPayload['scalars']>({
-                id: 1,
+                // @ts-expect-error - id is a string in mongodb and a number in postgres
+                id: process.env.TEST_DB_TYPE === "mongodb" ? "1" : 1,
                 email: "extendedClient@foobar.com",
               })
       
