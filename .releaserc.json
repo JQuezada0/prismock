@@ -1,11 +1,21 @@
 {
-  "branches": "master",
-  "repositoryUrl": "https://github.com/morintd/prismock.git",
+  "branches": [
+    "main",
+    { "name": "beta", "prerelease": true }
+  ],
+  "repositoryUrl": "https://github.com/JQuezada0/prismock",
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
     "@semantic-release/changelog",
+    "@semantic-release/npm",
     "@semantic-release/github",
-    "@semantic-release/npm"
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md", "package.json"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]"
+      }
+    ]
   ]
 }
