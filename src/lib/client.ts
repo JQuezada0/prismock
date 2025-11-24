@@ -50,11 +50,11 @@ export function generateClient<T = PrismaClient>(delegates: Record<string, Deleg
   } as unknown as PrismockClientType<T>;
 }
 
-type PrismaModule<PC = PrismaClient> = {
+export type PrismaModule<PC = PrismaClient> = {
   dmmf: runtime.BaseDMMF;
 };
 
-class Prismock<PC> {
+export class Prismock<PC> {
   __prismaModule: PrismaModule<PC>;
 
   private constructor(prismaModule: PrismaModule<PC>) {
