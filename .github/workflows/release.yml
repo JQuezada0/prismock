@@ -23,6 +23,11 @@ jobs:
         with:
           bun-version: 1.2.16
 
+      - name: Configure Git User
+        run: |
+          git config --global user.email "johnilquezada@gmail.com"
+          git config --global user.name "Johnil Quezada"
+
       - name: Setup NPM
         run: npm set "//registry.npmjs.org/:_authToken" ${{ secrets.NPM_TOKEN }}
 
