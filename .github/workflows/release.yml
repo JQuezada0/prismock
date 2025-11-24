@@ -3,8 +3,8 @@ name: Release
 on:
   push:
     branches:
-      - main
       - beta
+      # - main
 
 jobs:
   release:
@@ -33,4 +33,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: bunx semantic-release
+        run: |
+          BRANCH="${GITHUB_REF##*/}"
+
+          if [ "$BRANCH" = "beta" ]; then
+            echo "🔵 Beta branch detected — running prerelease"
+            bun run release-it --ci --preRelease=beta
+          else
+            echo "🟢 Main branch detected — running stable release"
+            bun run release-it --ci
+          fi
