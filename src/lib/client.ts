@@ -1,6 +1,6 @@
-import { Prisma, type PrismaClient } from '@prisma/client';
-import * as runtime from '@prisma/client/runtime/library';
-import { DMMF } from '@prisma/generator-helper';
+import type { PrismaClient } from '@prisma/client';
+import type { DMMF } from '@prisma/generator-helper';
+import type * as runtime from '@prisma/client/runtime/library';
 
 import { Delegate } from './delegate';
 import { Data, Delegates, generateDelegates } from './prismock';
@@ -50,71 +50,88 @@ export function generateClient<T = PrismaClient>(delegates: Record<string, Deleg
   } as unknown as PrismockClientType<T>;
 }
 
-type PrismaModule = {
+type PrismaModule<PC = PrismaClient> = {
   dmmf: runtime.BaseDMMF;
 };
 
-export function createPrismock(instance: PrismaModule) {
-  return class Prismock {
-    constructor() {
-      this.generate();
+class Prismock<PC> {
+  __prismaModule: PrismaModule<PC>;
+
+  private constructor(prismaModule: PrismaModule<PC>) {
+    this.__prismaModule = prismaModule;
+    this.generate();
+  }
+
+  static async create<PC = PrismaClient>(prismaModule: PrismaModule<PC>) {
+    return new Prismock(prismaModule);
+  }
+
+  static async createDefault() {
+    const { Prisma, PrismaClient } = await import("@prisma/client")
+
+    return new Prismock<InstanceType<typeof PrismaClient>>(Prisma);
+  }
+
+  reset() {
+    this.generate();
+  }
+
+  private generate() {
+    const { delegates, setData, getData } = generateDelegates({ models: this.__prismaModule.dmmf.datamodel.models as DMMF.Model[] });
+
+    Object.entries({ ...delegates, setData, getData }).forEach(([key, value]) => {
+      if (key in this) Object.assign((this as unknown as Delegates)[key], value);
+      else Object.assign(this, { [key]: value });
+    });
+  }
+
+  async $connect() {
+    return Promise.resolve();
+  }
+
+  $disconnect() {
+    return Promise.resolve();
+  }
+
+  $on() {}
+
+  $use() {
+    return this;
+  }
+
+  $executeRaw() {
+    return Promise.resolve(0);
+  }
+
+  $executeRawUnsafe() {
+    return Promise.resolve(0);
+  }
+
+  $queryRaw() {
+    return Promise.resolve([]);
+  }
+
+  $queryRawUnsafe() {
+    return Promise.resolve([]);
+  }
+
+  $extends(extensionDefs: ExtensionsDefinition) {
+    return applyExtensions(this as unknown as PrismaClient, extensionDefs);
+  }
+
+  async $transaction(args: any) {
+    if (Array.isArray(args)) {
+      return Promise.all(args);
     }
 
-    reset() {
-      this.generate();
-    }
-
-    private generate() {
-      const { delegates, setData, getData } = generateDelegates({ models: instance.dmmf.datamodel.models as DMMF.Model[] });
-
-      Object.entries({ ...delegates, setData, getData }).forEach(([key, value]) => {
-        if (key in this) Object.assign((this as unknown as Delegates)[key], value);
-        else Object.assign(this, { [key]: value });
-      });
-    }
-
-    async $connect() {
-      return Promise.resolve();
-    }
-
-    $disconnect() {
-      return Promise.resolve();
-    }
-
-    $on() {}
-
-    $use() {
-      return this;
-    }
-
-    $executeRaw() {
-      return Promise.resolve(0);
-    }
-
-    $executeRawUnsafe() {
-      return Promise.resolve(0);
-    }
-
-    $queryRaw() {
-      return Promise.resolve([]);
-    }
-
-    $queryRawUnsafe() {
-      return Promise.resolve([]);
-    }
-
-    $extends(extensionDefs: ExtensionsDefinition) {
-      return applyExtensions(this as unknown as PrismaClient, extensionDefs);
-    }
-
-    async $transaction(args: any) {
-      if (Array.isArray(args)) {
-        return Promise.all(args);
-      }
-
-      return args(this);
-    }
-  } as unknown as typeof PrismaClient & PrismockData;
+    return args(this);
+  }
 }
 
-export const PrismockClient = createPrismock(Prisma);
+export async function createPrismock() {
+  return await Prismock.createDefault()
+}
+
+export async function createPrismockClient<PC = PrismaClient>(prismaModule: PrismaModule<PC>) {
+  return await Prismock.create(prismaModule);
+}
