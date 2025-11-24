@@ -1,6 +1,6 @@
 {
   "name": "@pkgverse/prismock",
-  "version": "1.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "description": "A mock for PrismaClient, dedicated to unit testing.",
   "repository": {
     "url": "https://github.com/JQuezada0/prismock"
@@ -76,6 +76,7 @@
     "lint-staged": "16.1.6",
     "prettier": "2.8.8",
     "prisma": "5.22.0",
+    "release-it": "19.0.6",
     "semantic-release": "24.2.7",
     "ts-jest": "29.4.1",
     "ts-node": "10.9.2",
