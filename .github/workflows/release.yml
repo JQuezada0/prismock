@@ -46,7 +46,7 @@ jobs:
 
           if [ "$BRANCH" = "beta" ]; then
             echo "🔵 Beta branch detected — running prerelease"
-            bun run release-it --ci --preRelease=beta
+            bun run release-it --ci --preRelease=beta --no-increment
           else
             echo "🟢 Main branch detected — running stable release"
             bun run release-it --ci
