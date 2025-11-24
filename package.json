@@ -1,6 +1,6 @@
 {
   "name": "@pkgverse/prismock",
-  "version": "2.0.0-beta.2",
+  "version": "2.0.0-beta.1",
   "description": "A mock for PrismaClient, dedicated to unit testing.",
   "repository": {
     "url": "https://github.com/JQuezada0/prismock"
