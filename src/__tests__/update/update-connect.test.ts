@@ -1,7 +1,7 @@
 import { PrismaClient, User } from '@prisma/client';
 
 import { resetDb, simulateSeed, seededPosts, seededUsers, formatEntries, formatEntry } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
+import { createPrismock, PrismockClientType } from '../../lib/client';
 
 jest.setTimeout(40000);
 
@@ -19,7 +19,7 @@ describe('update (connect)', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
     await simulateSeed(prismock);
 
     realAuthor = (await prisma.user.findUnique({ where: { email: 'user1@company.com' } }))!;

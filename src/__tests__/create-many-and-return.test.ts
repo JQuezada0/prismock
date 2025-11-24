@@ -2,7 +2,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
-import { PrismockClient, PrismockClientType } from '../lib/client';
+import { createPrismock, PrismockClientType } from '../lib/client';
 import { resetDb } from '../../testing';
 import { PrismaClient, User } from '@prisma/client';
 import { fetchGenerator, getProvider } from '../lib/prismock';
@@ -18,7 +18,7 @@ describe('createManyAndReturn', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
 
     const generator = await fetchGenerator();
     provider = getProvider(generator);

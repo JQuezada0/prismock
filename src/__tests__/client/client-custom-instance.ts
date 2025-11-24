@@ -4,7 +4,7 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 
 import { resetDb, seededBlogs, seededPosts, seededUsers, simulateSeed } from '../../../testing';
-import { PrismockClientType, createPrismock } from '../../';
+import { PrismockClientType, createPrismock, createPrismockClient } from '../../';
 import { fetchGenerator, getProvider } from '../../lib/prismock';
 
 jest.setTimeout(40000);
@@ -20,7 +20,7 @@ describe('client', () => {
 
     prisma = new PrismaClient();
 
-    prismock = new (createPrismock(Prisma))() as PrismockClientType;
+    prismock = await createPrismockClient(Prisma)
     await simulateSeed(prismock);
 
     const generator = await fetchGenerator();

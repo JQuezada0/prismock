@@ -4,7 +4,7 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 
 import { resetDb, simulateSeed, buildUser } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
+import { createPrismock, PrismockClientType } from '../../lib/client';
 
 jest.setTimeout(40000);
 
@@ -16,7 +16,7 @@ describe('groupBy', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
     await simulateSeed(prismock);
 
     const users = [

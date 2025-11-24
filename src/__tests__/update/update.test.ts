@@ -17,7 +17,7 @@ import {
   seededUsers,
   simulateSeed,
 } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
+import { createPrismock, PrismockClientType } from '../../lib/client';
 import { Item } from '../../lib/delegate';
 import { fetchGenerator, getProvider } from '../../lib/prismock';
 
@@ -33,7 +33,7 @@ describe('update', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
     await simulateSeed(prismock);
 
     const generator = await fetchGenerator();

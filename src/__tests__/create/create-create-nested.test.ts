@@ -1,7 +1,7 @@
 import { Blog, Gender, PrismaClient, User } from '@prisma/client';
 
 import { buildUser, formatEntry, resetDb, simulateSeed } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
+import { createPrismock, PrismockClientType } from '../../lib/client';
 
 jest.setTimeout(40000);
 
@@ -16,7 +16,7 @@ describe('create', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
     await simulateSeed(prismock);
 
     realBlog = (await prisma.blog.findUnique({ where: { title: 'blog-1' } }))!;

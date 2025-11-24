@@ -1,7 +1,7 @@
 import { Blog, Post, PrismaClient } from '@prisma/client';
 
-import { seededBlogs, resetDb, simulateSeed, seededPosts } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
+import { seededBlogs, resetDb,   simulateSeed, seededPosts } from '../../../testing';
+import { createPrismock, PrismockClientType } from '../../lib/client';
 import { omit } from '../../lib/helpers';
 
 jest.setTimeout(40000);
@@ -29,7 +29,7 @@ describe('delete (select)', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
     await simulateSeed(prismock);
 
     realBlog1 = (await prisma.blog.findUnique({ where: { title: seededBlogs[0].title } }))!;

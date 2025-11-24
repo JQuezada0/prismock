@@ -9,7 +9,7 @@ import { applyExtensions, type ExtensionsDefinition } from './extensions';
 type GetData = () => Data;
 type SetData = (data: Data) => void;
 
-interface PrismockData {
+export interface PrismockData {
   getData: GetData;
   setData: SetData;
   reset: () => void;
@@ -63,13 +63,13 @@ export class Prismock<PC> {
   }
 
   static async create<PC = PrismaClient>(prismaModule: PrismaModule<PC>) {
-    return new Prismock(prismaModule);
+    return (new Prismock<PC>(prismaModule)) as unknown as PrismockClientType<PC>;
   }
 
   static async createDefault() {
     const { Prisma, PrismaClient } = await import("@prisma/client")
 
-    return new Prismock<InstanceType<typeof PrismaClient>>(Prisma);
+    return new Prismock<InstanceType<typeof PrismaClient>>(Prisma) as unknown as (PrismaClient & PrismockData);
   }
 
   reset() {

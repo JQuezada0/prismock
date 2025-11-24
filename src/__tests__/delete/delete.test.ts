@@ -3,7 +3,7 @@ import { version as clientVersion } from '@prisma/client/package.json';
 
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { formatEntries, formatEntry, generateId, resetDb, simulateSeed } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
+import { createPrismock, PrismockClientType } from '../../lib/client';
 
 jest.setTimeout(40000);
 
@@ -63,7 +63,7 @@ describe('delete', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
     await simulateSeed(prismock);
 
     const user1 = await prisma.user.create({ data: data.user1 });
