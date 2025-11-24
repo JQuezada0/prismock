@@ -2,10 +2,7 @@ import path from 'path';
 
 import { PrismaClient } from '@prisma/client';
 import { DMMF } from '@prisma/generator-helper';
-import { getDMMF } from '@prisma/internals/dist/engine-commands/getDmmf';
-import { Generator } from '@prisma/internals/dist/Generator';
-import { getGenerator } from '@prisma/internals/dist/get-generators/getGenerators';
-import { getSchema } from '@prisma/internals/dist/cli/getSchema';
+import { getDMMF, getGenerator, getSchema, type Generator } from '@prisma/internals';
 
 import { isAutoIncrement } from './operations';
 import { Delegate, DelegateProperties, generateDelegate, Item } from './delegate';
