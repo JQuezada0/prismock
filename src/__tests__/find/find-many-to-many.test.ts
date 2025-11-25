@@ -1,9 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-
+import { describe, it, expect, beforeAll } from "vitest"
 import { buildSubscription, resetDb, seededBlogs, seededUsers, simulateSeed } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
-
-jest.setTimeout(40000);
 
 describe('find (many-to-many)', () => {
   let prismock: PrismockClientType;

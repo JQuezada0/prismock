@@ -1,19 +1,24 @@
-import { PrismaClient } from '.prisma-custom/client';
-
 import { buildUser, formatEntries, formatEntry } from '../../../testing';
+import { describe, it, expect, beforeAll, vi } from "vitest"
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url)
 
 // This path existing depends on <rootDir>/testing/global-setup.ts running properly.
-jest.mock('.prisma-custom/client', () => {
-  const actual = jest.requireActual('.prisma-custom/client');
+vi.mock('@prisma-custom/client', async () => {
+  console.log(`Mocking PrismaClient from`);
+  const actual = await vi.importActual<typeof import('.prisma-custom/client')>('@prisma-custom/client');
   return {
     ...actual,
-    PrismaClient: jest.requireActual('../../').createPrismock(actual.Prisma),
+    PrismaClient: await (await vi.importActual<typeof import('../../lib/client')>('../../lib/client')).createPrismockClass(actual.Prisma),
   };
 });
 
 describe('Example', () => {
   describe('With mock', () => {
     it('Should use prismock instead of prisma', async () => {
+      // @ts-expect-error - this is an aliased path
+      const { PrismaClient } = await import('@prisma-custom/client');
       const prisma = new PrismaClient();
 
       const user = await prisma.user.create({ data: { email: 'user1@company.com', password: 'password', warnings: 0 } });

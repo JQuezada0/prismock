@@ -5,9 +5,9 @@
 import { createPrismock, PrismockClientType } from '../lib/client';
 import { resetDb } from '../../testing';
 import { PrismaClient, User } from '@prisma/client';
+import { describe, it, expect, beforeAll } from "vitest"
 import { fetchGenerator, getProvider } from '../lib/prismock';
-
-jest.setTimeout(40000);
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('createManyAndReturn', () => {
   let prismock: PrismockClientType;

@@ -1,13 +1,9 @@
-/* eslint-disable no-console */
-/* eslint-disable jest/no-conditional-expect */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { PrismaClient } from '@prisma/client';
-
 import { resetDb, simulateSeed } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
 import { fetchGenerator, getProvider } from '../../lib/prismock';
+import { describe, it, expect, beforeAll } from "vitest"
 
-jest.setTimeout(40000);
 const now = new Date().getTime();
 
 describe('find', () => {
@@ -132,13 +128,13 @@ describe('find', () => {
   it('Should return ordered users based on date', async () => {
     if (!['mongodb'].includes(provider)) {
       const mockUsers = await prismock.user.findMany({
-        // @ts-ignore @TODO: separate test for mongodb, as it doesn't support nulls:
+        // @ts-expect-error @TODO: separate test for mongodb, as it doesn't support nulls:
         orderBy: { birthday: { sort: 'desc', nulls: 'last' } },
         take: 3,
       });
 
       const realUsers = await prisma.user.findMany({
-        // @ts-ignore @TODO: separate test for mongodb, as it doesn't support nulls:
+        // @ts-expect-error @TODO: separate test for mongodb, as it doesn't support nulls:
         orderBy: { birthday: { sort: 'desc', nulls: 'last' } },
         take: 3,
       });
@@ -154,13 +150,13 @@ describe('find', () => {
   it('Should return ordered items based on numbers', async () => {
     if (!['mongodb'].includes(provider)) {
       const mockUsers = await prismock.user.findMany({
-        // @ts-ignore @TODO: separate test for mongodb, as it doesn't support nulls:
+        // @ts-expect-error @TODO: separate test for mongodb, as it doesn't support nulls:
         orderBy: { warnings: { sort: 'asc', nulls: 'last' } },
         select: { warnings: true, email: true },
       });
 
       const realUsers = await prisma.user.findMany({
-        // @ts-ignore @TODO: separate test for mongodb, as it doesn't support nulls:
+        // @ts-expect-error @TODO: separate test for mongodb, as it doesn't support nulls:
         orderBy: { warnings: { sort: 'asc', nulls: 'last' } },
         select: { warnings: true, email: true },
       });
@@ -187,13 +183,13 @@ describe('find', () => {
   it('Should return ordered items with two orderBy', async () => {
     if (!['mongodb'].includes(provider)) {
       const mockUsers = await prismock.user.findMany({
-        // @ts-ignore @TODO: separate test for mongodb, as it doesn't support nulls:
+        // @ts-expect-error @TODO: separate test for mongodb, as it doesn't support nulls:
         orderBy: [{ warnings: { sort: 'desc', nulls: 'last' } }, { email: 'desc' }],
         select: { warnings: true, email: true },
       });
 
       const realUsers = await prisma.user.findMany({
-        // @ts-ignore @TODO: separate test for mongodb, as it doesn't support nulls:
+        // @ts-expect-error @TODO: separate test for mongodb, as it doesn't support nulls:
         orderBy: [{ warnings: { sort: 'desc', nulls: 'last' } }, { email: 'desc' }],
         select: { warnings: true, email: true },
       });
@@ -207,13 +203,13 @@ describe('find', () => {
   it('Should return ordered items with three orderBy', async () => {
     if (!['mongodb'].includes(provider)) {
       const mockUsers = await prismock.user.findMany({
-        // @ts-ignore @TODO: separate test for mongodb, as it doesn't support nulls:
+        // @ts-expect-error @TODO: separate test for mongodb, as it doesn't support nulls:
         orderBy: [{ email: 'desc' }, { warnings: { sort: 'desc', nulls: 'first' } }, { password: 'asc' }],
         select: { warnings: true, email: true },
       });
 
       const realUsers = await prisma.user.findMany({
-        // @ts-ignore @TODO: separate test for mongodb, as it doesn't support nulls:
+        // @ts-expect-error @TODO: separate test for mongodb, as it doesn't support nulls:
         orderBy: [{ email: 'desc' }, { warnings: { sort: 'desc', nulls: 'first' } }, { password: 'asc' }],
         select: { warnings: true, email: true },
       });
@@ -227,13 +223,13 @@ describe('find', () => {
   it('Should return orderer items with null first', async () => {
     if (!['mongodb'].includes(provider)) {
       const mockUsers = await prismock.user.findMany({
-        // @ts-ignore @TODO: separate test for mongodb, as it doesn't support nulls:
+        // @ts-expect-error @TODO: separate test for mongodb, as it doesn't support nulls:
         orderBy: [{ warnings: { sort: 'asc', nulls: 'first' } }, { email: 'desc' }],
         select: { warnings: true, email: true },
       });
 
       const realUsers = await prisma.user.findMany({
-        // @ts-ignore @TODO: separate test for mongodb, as it doesn't support nulls:
+        // @ts-expect-error @TODO: separate test for mongodb, as it doesn't support nulls:
         orderBy: [{ warnings: { sort: 'asc', nulls: 'first' } }, { email: 'desc' }],
         select: { warnings: true, email: true },
       });
@@ -247,13 +243,13 @@ describe('find', () => {
   it('Should return orderer items with null last', async () => {
     if (!['mongodb'].includes(provider)) {
       const mockUsers = await prismock.user.findMany({
-        // @ts-ignore @TODO: separate test for mongodb, as it doesn't support nulls:
+        // @ts-expect-error @TODO: separate test for mongodb, as it doesn't support nulls:
         orderBy: [{ warnings: { sort: 'asc', nulls: 'last' } }, { email: 'desc' }],
         select: { warnings: true, email: true },
       });
 
       const realUsers = await prisma.user.findMany({
-        // @ts-ignore @TODO: separate test for mongodb, as it doesn't support nulls:
+        // @ts-expect-error @TODO: separate test for mongodb, as it doesn't support nulls:
         orderBy: [{ warnings: { sort: 'asc', nulls: 'last' } }, { email: 'desc' }],
         select: { warnings: true, email: true },
       });

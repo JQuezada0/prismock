@@ -1,13 +1,8 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable jest/no-conditional-expect */
-// @ts-nocheck
 import { PrismaClient, User } from '@prisma/client';
-
+import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { resetDb, seededUsers, simulateSeed, seededBlogs, seededServices, seededReactions } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
 import { fetchGenerator, getProvider } from '../../lib/prismock';
-
-jest.setTimeout(40000);
 
 describe('find', () => {
   let prismock: PrismockClientType;

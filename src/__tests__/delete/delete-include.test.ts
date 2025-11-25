@@ -1,10 +1,8 @@
 import { Blog, Post, PrismaClient } from '@prisma/client';
-
 import { resetDb, seededBlogs, seededPosts, simulateSeed } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
 import { omit } from '../../lib/helpers';
-
-jest.setTimeout(40000);
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('delete (includes)', () => {
   let prismock: PrismockClientType;

@@ -4,8 +4,8 @@ import { version as clientVersion } from '@prisma/client/package.json';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { formatEntries, formatEntry, generateId, resetDb, simulateSeed } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
+import { describe, it, expect, beforeAll } from 'vitest';
 
-jest.setTimeout(40000);
 
 describe('delete', () => {
   let prismock: PrismockClientType;

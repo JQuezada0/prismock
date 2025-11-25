@@ -3,8 +3,7 @@ import { createId } from '@paralleldrive/cuid2';
 
 import { resetDb, seededUsers, simulateSeed } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
-
-jest.setTimeout(40000);
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('delete unique', () => {
   let prismock: PrismockClientType;

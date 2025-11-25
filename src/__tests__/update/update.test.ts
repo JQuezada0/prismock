@@ -1,10 +1,5 @@
-/* eslint-disable no-console */
-/* eslint-disable jest/no-conditional-expect */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 import { PrismaClient, Service } from '@prisma/client';
 import { version as clientVersion } from '@prisma/client/package.json';
-
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 import {
@@ -20,8 +15,7 @@ import {
 import { createPrismock, PrismockClientType } from '../../lib/client';
 import { Item } from '../../lib/delegate';
 import { fetchGenerator, getProvider } from '../../lib/prismock';
-
-jest.setTimeout(40000);
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('update', () => {
   let prismock: PrismockClientType;
@@ -90,55 +84,54 @@ describe('update', () => {
   });
 
   describe('Update (push)', () => {
-    if (['mongodb', 'postgresql'].includes(provider)) {
-      let realService: Service;
+    let realService: Service;
       let mockService: Service;
 
-      beforeAll(async () => {
-        const seededService = seededServices[0];
+    beforeAll(async () => {
+      const seededService = seededServices[0];
 
-        realService = (await prisma.service.findFirst({ where: { name: seededService.name } }))!;
-        mockService = (await prismock.service.findFirst({ where: { name: seededService.name } }))!;
+      realService = (await prisma.service.findFirst({ where: { name: seededService.name } }))!;
+      mockService = (await prismock.service.findFirst({ where: { name: seededService.name } }))!;
 
-        await prisma.service.updateMany({
-          where: { name: seededService.name },
-          data: {
-            tags: {
-              push: ['tag1', 'tag2'],
-            },
+      await prisma.service.updateMany({
+        where: { name: seededService.name },
+        data: {
+          tags: {
+            push: ['tag1', 'tag2'],
           },
-        });
-        prismock.service.updateMany({
-          where: { name: seededService.name },
-          data: {
-            tags: {
-              push: ['tag1', 'tag2'],
-            },
-          },
-        });
+        },
       });
-
-      it('Should update stored data', async () => {
-        const mockStored = await prismock.service.findMany({ select: { name: true, tags: true, userId: true } });
-        const stored = await prisma.service.findMany({ select: { name: true, tags: true, userId: true } });
-
-        expect(stored).toEqual([
-          {
-            name: realService.name,
-            tags: ['tag1', 'tag2'],
-            userId: realService.userId,
+      prismock.service.updateMany({
+        where: { name: seededService.name },
+        data: {
+          tags: {
+            push: ['tag1', 'tag2'],
           },
-        ]);
-
-        expect(mockStored).toEqual([
-          {
-            name: mockService.name,
-            tags: ['tag1', 'tag2'],
-            userId: mockService.userId,
-          },
-        ]);
+        },
       });
-    }
+    });
+
+    it.runIf(['mongodb', 'postgresql'].includes(provider))('Should update stored data', async () => {
+      const mockStored = await prismock.service.findMany({ select: { name: true, tags: true, userId: true } });
+      const stored = await prisma.service.findMany({ select: { name: true, tags: true, userId: true } });
+
+      expect(stored).toEqual([
+        {
+          name: realService.name,
+          tags: ['tag1', 'tag2'],
+          userId: realService.userId,
+        },
+      ]);
+
+      expect(mockStored).toEqual([
+        {
+          name: mockService.name,
+          tags: ['tag1', 'tag2'],
+          userId: mockService.userId,
+        },
+      ]);
+    })
+   
   });
 
   describe('Update using compound id with default name', () => {

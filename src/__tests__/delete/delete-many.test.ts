@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { resetDb, simulateSeed } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('deleteMany', () => {
   let prismock: PrismockClientType;

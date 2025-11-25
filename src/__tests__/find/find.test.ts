@@ -15,8 +15,7 @@ import {
 } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
 import { fetchGenerator, getProvider } from '../../lib/prismock';
-
-jest.setTimeout(40000);
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('find', () => {
   let provider: string;

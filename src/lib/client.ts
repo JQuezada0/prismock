@@ -18,46 +18,10 @@ export type PrismockClientType<T = PrismaClient> = T & PrismockData;
 
 type TransactionArgs<T> = (tx: Omit<T, '$transaction'>) => unknown | Promise<unknown>[];
 
-export function generateClient<T = PrismaClient>(delegates: Record<string, Delegate>, getData: GetData, setData: SetData) {
-  // eslint-disable-next-line no-console
-  console.log(
-    'Deprecation notice: generatePrismock and generatePrismockSync should be replaced with PrismockClient. See https://github.com/morintd/prismock/blob/master/docs/generate-prismock-deprecated.md',
-  );
-
-  const client = {
-    $connect: () => Promise.resolve(),
-    $disconnect: () => Promise.resolve(),
-    $on: () => {},
-    $use: () => {},
-    $executeRaw: () => Promise.resolve(0),
-    $executeRawUnsafe: () => Promise.resolve(0),
-    $queryRaw: () => Promise.resolve([]),
-    $queryRawUnsafe: () => Promise.resolve([]),
-    getData,
-    setData,
-    ...delegates,
-  } as unknown as PrismockClientType<T>;
-
-  return {
-    ...client,
-    $transaction: async (args: TransactionArgs<T>) => {
-      if (Array.isArray(args)) {
-        return Promise.all(args);
-      }
-
-      return args(client);
-    },
-  } as unknown as PrismockClientType<T>;
-}
-
-export type PrismaModule<PC = PrismaClient> = {
-  dmmf: runtime.BaseDMMF;
-};
-
-export class Prismock<PC> {
+export class Prismock<PC = PrismaClient> {
   __prismaModule: PrismaModule<PC>;
 
-  private constructor(prismaModule: PrismaModule<PC>) {
+  protected constructor(prismaModule: PrismaModule<PC>) {
     this.__prismaModule = prismaModule;
     this.generate();
   }
@@ -126,6 +90,56 @@ export class Prismock<PC> {
 
     return args(this);
   }
+}
+
+export function generateClient<T = PrismaClient>(delegates: Record<string, Delegate>, getData: GetData, setData: SetData) {
+  // eslint-disable-next-line no-console
+  console.log(
+    'Deprecation notice: generatePrismock and generatePrismockSync should be replaced with PrismockClient. See https://github.com/morintd/prismock/blob/master/docs/generate-prismock-deprecated.md',
+  );
+
+  const client = {
+    $connect: () => Promise.resolve(),
+    $disconnect: () => Promise.resolve(),
+    $on: () => {},
+    $use: () => {},
+    $executeRaw: () => Promise.resolve(0),
+    $executeRawUnsafe: () => Promise.resolve(0),
+    $queryRaw: () => Promise.resolve([]),
+    $queryRawUnsafe: () => Promise.resolve([]),
+    getData,
+    setData,
+    ...delegates,
+  } as unknown as PrismockClientType<T>;
+
+  return {
+    ...client,
+    $transaction: async (args: TransactionArgs<T>) => {
+      if (Array.isArray(args)) {
+        return Promise.all(args);
+      }
+
+      return args(client);
+    },
+  } as unknown as PrismockClientType<T>;
+}
+
+export type PrismaModule<PC = PrismaClient> = {
+  dmmf: runtime.BaseDMMF;
+};
+
+
+
+export async function createPrismockClass(prismaModule?: PrismaModule) {
+  const { Prisma } = await import("@prisma/client")
+
+  const c = class PrismockClientDefault extends Prismock<InstanceType<typeof PrismaClient>> {
+    protected constructor() {
+      super(Prisma);
+    }
+  }
+
+  return c as unknown as typeof PrismaClient;
 }
 
 export async function createPrismock() {

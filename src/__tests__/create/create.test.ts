@@ -13,8 +13,7 @@ import {
 } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
 import { isCuid } from '@paralleldrive/cuid2';
-
-jest.setTimeout(40000);
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('create', () => {
   let prismock: PrismockClientType;

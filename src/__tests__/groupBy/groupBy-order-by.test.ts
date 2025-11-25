@@ -5,8 +5,7 @@ import { PrismaClient } from '@prisma/client';
 
 import { resetDb, simulateSeed, buildUser } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
-
-jest.setTimeout(40000);
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('groupBy', () => {
   let prismock: PrismockClientType;
