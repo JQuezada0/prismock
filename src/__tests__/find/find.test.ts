@@ -256,12 +256,9 @@ describe('find', () => {
 
             const mockUser = (await prismock.user.findFirst(find)) as User;
 
-            // eslint-disable-next-line jest/no-conditional-expect
             expect(formatEntry(realUser)).toEqual(formatEntry(expected));
-            // eslint-disable-next-line jest/no-conditional-expect
             expect(formatEntry(mockUser)).toEqual(formatEntry(expected));
           } else {
-            // eslint-disable-next-line no-console
             console.log('[SKIPPED] Insensitive is not supported on the current db');
           }
         });
