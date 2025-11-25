@@ -32,7 +32,7 @@
     "pretty": true /* Stylize errors and messages using color and context. */,
 
     "lib": ["esnext"],
-    "types": ["node", "jest"]
+    "types": ["node", "bun"]
   },
   "include": ["src/index.ts"],
   "exclude": ["node_modules/**"],
