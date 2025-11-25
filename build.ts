@@ -13,6 +13,7 @@ await Bun.build({
         if (args.path.endsWith('.json')) {
           return null; // default handling = bundle it
         }
+
         return { path: args.path, external: true };
       });
     }

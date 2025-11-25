@@ -7,8 +7,10 @@ export function applyModelExtensions(
   client: PrismaClient,
   extensions: ExtensionsDefinition,
 ): PrismaClient {
-  if (typeof extensions === 'function') {
-    return client;
+  if (typeof extensions === "function") {
+    type ExtendableClient = Parameters<typeof extensions>[0]
+    const extendedClient = extensions(client as ExtendableClient)
+    return extendedClient as PrismaClient
   }
 
   const model = extensions.model ?? {};
