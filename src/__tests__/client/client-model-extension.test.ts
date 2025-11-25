@@ -1,12 +1,12 @@
 import { Prisma } from "@prisma/client"
 import { createPrismock } from "../../lib/client"
-import { mockDeep } from "jest-mock-extended"
+import { mockDeep } from "vitest-mock-extended"
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe("client-model-extension", () => {
-  describe("model extension", () => {
-    const Prismock = createPrismock(Prisma)
-    it("should work", () => {
-      const prismock = new Prismock()
+  describe("model extension", async () => {
+    it("should work", async () => {
+      const prismock = await createPrismock()
 
       const extensions = {
         model: {

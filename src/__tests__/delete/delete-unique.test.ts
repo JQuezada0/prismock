@@ -2,9 +2,8 @@ import { Blog, PrismaClient, User } from '@prisma/client';
 import { createId } from '@paralleldrive/cuid2';
 
 import { resetDb, seededUsers, simulateSeed } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
-
-jest.setTimeout(40000);
+import { createPrismock, PrismockClientType } from '../../lib/client';
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('delete unique', () => {
   let prismock: PrismockClientType;
@@ -17,7 +16,7 @@ describe('delete unique', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
     await simulateSeed(prismock);
 
     realUser = (await prisma.user.findUnique({ where: { email: seededUsers[0].email } }))!;

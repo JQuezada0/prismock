@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client"
+import { Prisma, type PrismaClient } from "@prisma/client"
 import { DMMF, type DefaultArgs, type DynamicResultExtensionArgs, type ExtendsHook, type ModelKey } from "@prisma/client/runtime/library"
 
 type ModelMap = {

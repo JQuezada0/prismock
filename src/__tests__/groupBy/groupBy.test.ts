@@ -1,9 +1,7 @@
 import { PrismaClient, User } from '@prisma/client';
-
 import { buildUser, resetDb, seededUsers, simulateSeed } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
-
-jest.setTimeout(40000);
+import { createPrismock, PrismockClientType } from '../../lib/client';
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('groupBy', () => {
   let prismock: PrismockClientType;
@@ -19,7 +17,7 @@ describe('groupBy', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
     await simulateSeed(prismock);
     const users = [buildUser(4, { role: 'ADMIN' })];
     await prisma.user.createMany({ data: users });

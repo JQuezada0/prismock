@@ -1,9 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 
 import { resetDb, simulateSeed } from '../../testing';
-import { PrismockClient, PrismockClientType } from '../lib/client';
-
-jest.setTimeout(40000);
+import { createPrismock, PrismockClientType } from '../lib/client';
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('aggregate', () => {
   let prismock: PrismockClientType;
@@ -13,7 +12,7 @@ describe('aggregate', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
 
     await simulateSeed(prismock);
     await prisma.user.create({ data: { email: 'user4@company.com', password: 'password' } });

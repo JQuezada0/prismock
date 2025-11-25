@@ -11,10 +11,9 @@ import {
   seededUsers,
   simulateSeed,
 } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
+import { createPrismock, PrismockClientType } from '../../lib/client';
 import { isCuid } from '@paralleldrive/cuid2';
-
-jest.setTimeout(40000);
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('create', () => {
   let prismock: PrismockClientType;
@@ -45,7 +44,7 @@ describe('create', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
     await simulateSeed(prismock);
 
     mockUsers.push(await prismock.user.create({ data: data.user1 }));
