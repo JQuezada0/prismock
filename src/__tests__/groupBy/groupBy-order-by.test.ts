@@ -1,6 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable jest/no-conditional-expect */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { PrismaClient } from '@prisma/client';
 
 import { resetDb, simulateSeed, buildUser } from '../../../testing';

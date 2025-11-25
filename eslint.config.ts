@@ -1,6 +1,5 @@
 import { defineConfig } from "eslint/config";
 import tseslint from 'typescript-eslint';
-import jestPlugin from "eslint-plugin-jest"
 import eslint from '@eslint/js'
 
 export default defineConfig({
@@ -11,9 +10,6 @@ export default defineConfig({
   rules: {
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-unused-vars": "off",
-  },
-  plugins: {
-    jest: jestPlugin,
   },
   ignores: [
     "dist/**",

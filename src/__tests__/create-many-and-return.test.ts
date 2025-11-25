@@ -1,11 +1,6 @@
-/* eslint-disable jest/no-conditional-expect */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-
 import { createPrismock, PrismockClientType } from '../lib/client';
 import { resetDb } from '../../testing';
 import { PrismaClient, User } from '@prisma/client';
-import { describe, it, expect, beforeAll } from "vitest"
 import { fetchGenerator, getProvider } from '../lib/prismock';
 import { describe, it, expect, beforeAll } from "vitest"
 
@@ -21,7 +16,7 @@ describe('createManyAndReturn', () => {
     prismock = await createPrismock()
 
     const generator = await fetchGenerator();
-    provider = getProvider(generator);
+    provider = getProvider(generator)!;
     generator.stop();
   });
 
