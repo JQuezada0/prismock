@@ -16,7 +16,7 @@ describe('createManyAndReturn', () => {
     prismock = await createPrismock()
 
     const generator = await fetchGenerator();
-    provider = getProvider(generator);
+    provider = getProvider(generator)!;
     generator.stop();
   });
 
