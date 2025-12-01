@@ -4,7 +4,7 @@
 [![npm](https://img.shields.io/npm/dm/@pkgverse/prismock)](https://www.npmjs.com/package/prismock)
 
 ## NOTE
-Originally forked from https://github.com/morintd/prismock. This library is awesome, but could use some modernization to work with newer versions of prisma and add support for
+Originally forked from https://github.com/morintd/prismock. This library is awesome, and I felt it could use some modernization to work with newer versions of prisma and add support for
 client extensions. My current intention is to try to maintain this and stay up to speed with bug-fixes. The focus is ESM-first, so although both ESM and CJS exports are provided,
 I haven't personally tested the CJS functionality.
 
