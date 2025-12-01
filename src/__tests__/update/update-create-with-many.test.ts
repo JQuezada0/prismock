@@ -1,5 +1,5 @@
 import { Blog, PrismaClient, User } from '@prisma/client';
-
+import { describe, it, expect, beforeAll } from "vitest"
 import {
   resetDb,
   simulateSeed,
@@ -10,9 +10,7 @@ import {
   seededUsers,
   seededBlogs,
 } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
-
-jest.setTimeout(40000);
+import { createPrismock, PrismockClientType } from '../../lib/client';
 
 describe('update (create) with many', () => {
   let prismock: PrismockClientType;
@@ -37,7 +35,7 @@ describe('update (create) with many', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
     await simulateSeed(prismock);
   });
 

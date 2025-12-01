@@ -1,14 +1,12 @@
 import { PrismaClient } from '@prisma/client';
-
 import { resetDb, simulateSeed } from '../../../testing';
-import { PrismockClient, createPrismock } from '../../lib/client';
+import { Prismock, createPrismock, createPrismockClass } from '../../lib/client';
 import { Prisma as CustomPrisma } from '../../../node_modules/.prisma-custom/client';
+import { describe, it, expect, beforeAll } from "vitest"
 
-const CustomPrismockClient = createPrismock(CustomPrisma);
+const CustomPrismockClient = await createPrismockClass(CustomPrisma);
 
-jest.setTimeout(40000);
-
-class PrismockService extends PrismockClient {
+class PrismockService extends CustomPrismockClient {
   findLastPost() {
     return this.post.findMany({ take: 1, select: { title: true } });
   }

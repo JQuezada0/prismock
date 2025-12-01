@@ -1,12 +1,8 @@
-/* eslint-disable no-console */
-/* eslint-disable jest/no-conditional-expect */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { PrismaClient } from '@prisma/client';
 
 import { resetDb, simulateSeed, buildUser } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
-
-jest.setTimeout(40000);
+import { createPrismock, PrismockClientType } from '../../lib/client';
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('groupBy', () => {
   let prismock: PrismockClientType;
@@ -16,7 +12,7 @@ describe('groupBy', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
     await simulateSeed(prismock);
 
     const users = [

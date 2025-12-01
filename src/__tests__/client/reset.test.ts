@@ -1,11 +1,10 @@
 import { simulateSeed } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
-
-jest.setTimeout(40000);
+import { createPrismock } from '../../lib/client';
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('client (reset)', () => {
   it('Should reset data', async () => {
-    const prismock = new PrismockClient() as PrismockClientType;
+    const prismock = await createPrismock()
     await simulateSeed(prismock);
 
     const users = await prismock.user.findMany();
@@ -18,7 +17,7 @@ describe('client (reset)', () => {
   });
 
   it('Should reset with previous references', async () => {
-    const prismock = new PrismockClient() as PrismockClientType;
+    const prismock = await createPrismock()
     await simulateSeed(prismock);
 
     const users = await prismock.user.findMany();

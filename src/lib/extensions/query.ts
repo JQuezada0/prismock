@@ -7,7 +7,9 @@ export function applyQueryExtensions(
   extensions: Parameters<ExtendsHook<"define", Prisma.TypeMapCb, DefaultArgs>>[0],
 ): PrismaClient {
   if (typeof extensions === "function") {
-    return client
+    type ExtendableClient = Parameters<typeof extensions>[0]
+    const extendedClient = extensions(client as ExtendableClient)
+    return extendedClient as PrismaClient
   }
 
   const queryExtendedModelMap = extensions.query ?? {}

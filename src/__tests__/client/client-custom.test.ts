@@ -2,7 +2,7 @@ import { DMMF } from '@prisma/generator-helper';
 
 import { seededUsers } from '../../../testing';
 import { fetchGenerator, generateDMMF, generatePrismockSync, getProvider } from '../../lib/prismock';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
+import { createPrismock, PrismockClientType } from '../../lib/client';
 
 describe('client (custom)', () => {
   let provider: string | undefined;
@@ -15,7 +15,7 @@ describe('client (custom)', () => {
 
   describe('generatePrismock', () => {
     it('Should get data', async () => {
-      const prismock = new PrismockClient() as PrismockClientType;
+      const prismock = await createPrismock()
       await prismock.user.createMany({ data: seededUsers.map(({ id, ...user }) => ({ ...user, parameters: {} })) });
 
       const data = prismock.getData();

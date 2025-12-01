@@ -1,8 +1,7 @@
 import { PrismaClient } from '@prisma/client';
+import { describe, it, expect, beforeAll } from "vitest"
 
 import { resetDb } from '../../../testing';
-
-jest.setTimeout(40000);
 
 describe('Example', () => {
   describe('Without mock', () => {

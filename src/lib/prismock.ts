@@ -1,11 +1,8 @@
-import path from 'path';
+import * as path from 'path';
 
 import { PrismaClient } from '@prisma/client';
 import { DMMF } from '@prisma/generator-helper';
-import { getDMMF } from '@prisma/internals/dist/engine-commands/getDmmf';
-import { Generator } from '@prisma/internals/dist/Generator';
-import { getGenerator } from '@prisma/internals/dist/get-generators/getGenerators';
-import { getSchema } from '@prisma/internals/dist/cli/getSchema';
+import type { Generator } from '@prisma/internals';
 
 import { isAutoIncrement } from './operations';
 import { Delegate, DelegateProperties, generateDelegate, Item } from './delegate';
@@ -23,6 +20,10 @@ type OptionsSync = {
 export type Data = Record<string, Item[]>;
 export type Properties = Record<string, DelegateProperties>;
 export type Delegates = Record<string, Delegate>;
+
+const PrismaInternals = await import('@prisma/internals');
+
+const { getDMMF, getGenerator, getSchema } = PrismaInternals;
 
 export async function generateDMMF(schemaPath?: string) {
   const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));

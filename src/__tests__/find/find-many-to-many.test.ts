@@ -1,9 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-
+import { describe, it, expect, beforeAll } from "vitest"
 import { buildSubscription, resetDb, seededBlogs, seededUsers, simulateSeed } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
-
-jest.setTimeout(40000);
+import { createPrismock, PrismockClientType } from '../../lib/client';
 
 describe('find (many-to-many)', () => {
   let prismock: PrismockClientType;
@@ -13,7 +11,7 @@ describe('find (many-to-many)', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
     await simulateSeed(prismock);
 
     const realBlogs = await prisma.blog.findMany();

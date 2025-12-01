@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - beta
+      # - main
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.16
+
+      - name: Configure Git User
+        run: |
+          git config --global user.email "johnilquezada@gmail.com"
+          git config --global user.name "Johnil Quezada"
+
+      - name: Setup NPM
+        run: npm set "//registry.npmjs.org/:_authToken" ${{ secrets.NPM_TOKEN }}
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build package
+        run: bun run build
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          BRANCH="${GITHUB_REF##*/}"
+
+          if [ "$BRANCH" = "beta" ]; then
+            echo "🔵 Beta branch detected — running prerelease"
+            bun run release-it --ci --preRelease=beta
+          else
+            echo "🟢 Main branch detected — running stable release"
+            bun run release-it --ci
+          fi

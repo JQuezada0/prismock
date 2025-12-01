@@ -13,10 +13,9 @@ import {
   seededUsers,
   simulateSeed,
 } from '../../../testing';
-import { PrismockClient, PrismockClientType } from '../../lib/client';
+import { createPrismock, PrismockClientType } from '../../lib/client';
 import { fetchGenerator, getProvider } from '../../lib/prismock';
-
-jest.setTimeout(40000);
+import { describe, it, expect, beforeAll } from "vitest"
 
 describe('find', () => {
   let provider: string;
@@ -33,7 +32,7 @@ describe('find', () => {
     await resetDb();
 
     prisma = new PrismaClient();
-    prismock = new PrismockClient() as PrismockClientType;
+    prismock = await createPrismock()
     await simulateSeed(prismock);
 
     const generator = await fetchGenerator();
@@ -257,12 +256,9 @@ describe('find', () => {
 
             const mockUser = (await prismock.user.findFirst(find)) as User;
 
-            // eslint-disable-next-line jest/no-conditional-expect
             expect(formatEntry(realUser)).toEqual(formatEntry(expected));
-            // eslint-disable-next-line jest/no-conditional-expect
             expect(formatEntry(mockUser)).toEqual(formatEntry(expected));
           } else {
-            // eslint-disable-next-line no-console
             console.log('[SKIPPED] Insensitive is not supported on the current db');
           }
         });
