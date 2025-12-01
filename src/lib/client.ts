@@ -128,14 +128,19 @@ export type PrismaModule<PC = PrismaClient> = {
   dmmf: runtime.BaseDMMF;
 };
 
+export async function createPrismockClass<PC extends (new (...args: any[]) => any)  = typeof PrismaClient>(prismaModuleInput?: PrismaModule) {
+  const prismaModule = await (async () => {
+    if (prismaModuleInput) {
+      return prismaModuleInput
+    }
 
+    const { Prisma } = await import("@prisma/client")
+    return Prisma
+  })()
 
-export async function createPrismockClass(prismaModule?: PrismaModule) {
-  const { Prisma } = await import("@prisma/client")
-
-  const c = class PrismockClientDefault extends Prismock<InstanceType<typeof PrismaClient>> {
+  const c = class PrismockClientDefault extends Prismock<InstanceType<PC>> {
     protected constructor() {
-      super(Prisma);
+      super(prismaModule);
     }
   }
 

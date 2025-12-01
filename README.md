@@ -1,8 +1,14 @@
 # prismock
 
-[![npm](https://img.shields.io/npm/v/prismock)](https://www.npmjs.com/package/prismock)
-[![Build](https://circleci.com/gh/morintd/prismock.svg?style=shield)](https://app.circleci.com/pipelines/github/morintd/prismock)
-[![npm](https://img.shields.io/npm/dm/prismock)](https://www.npmjs.com/package/prismock)
+[![npm](https://img.shields.io/npm/v/@pkgverse/prismock)](https://www.npmjs.com/package/@pkgverse/prismock)
+[![npm](https://img.shields.io/npm/dm/@pkgverse/prismock)](https://www.npmjs.com/package/prismock)
+
+## NOTE
+Originally forked from https://github.com/morintd/prismock. This library is awesome, but could use some modernization to work with newer versions of prisma and add support for
+client extensions. My current intention is to try to maintain this and stay up to speed with bug-fixes. The focus is ESM-first, so although both ESM and CJS exports are provided,
+I haven't personally tested the CJS functionality.
+
+---
 
 This is a mock for `PrismaClient`. It actually reads your `schema.prisma` and generate models based on it.
 
@@ -19,43 +25,44 @@ After setting up [Prisma](https://www.prisma.io/docs/getting-started/setup-prism
 yarn
 
 ```sh
-$ yarn add -D prismock
+$ yarn add -D @pkgverse/prismock
 ```
 
 npm
 
 ```
-$ npm add --save-dev prismock
+$ npm add --save-dev @pkgverse/prismock
 ```
 
 # Usage
 
-There are a few options here, depending on your application architecture.
-
-## Automatically (recommended)
-
-You can create a `__mocks__` directory at the root of your project, with a sub-directory named `@prisma`. Inside the `@prisma` directory, create a `client.js` file (or `client.ts` for TypeScript).
-
-Inside the `client` file, you can re-export the `@prisma/client` module, and replace `PrismaClient` by `PrismockClient`:
-
 ```ts
-import { PrismockClient } from 'prismock';
+import { Prisma, PrismaClient } from "${your_prisma_client_directory}"
+import { createPrismockClient } from 'prismock';
 
-export * from '@prisma/client';
-export { PrismockClient as PrismaClient };
+// Pass in the Prisma namespace, and manually define the type of your prisma client
+let mockedClient = await createPrismockClient<PrismaClient>(Prisma)
+
+// Optionally apply your client extensions to the client
+mockedClient = applyExtensions(mockedClient)
 ```
 
-That's it, prisma will be mocked in all your tests (tested with Jest & ViTest)
+That's it, prisma will be mocked in all your tests (tested with ViTest)
 
 ## PrismaClient
 
-You can mock the PrismaClient directly in your test, or setupTests ([Example](https://github.com/morintd/prismock/blob/master/src/__tests__/example-prismock.test.ts)):
+You can mock the PrismaClient directly in your test, or setupTests ([Example](https://github.com/JQuezada0/prismock/blob/beta/src/__tests__/client/example-prismock.test.ts)):
 
 ```ts
-jest.mock('@prisma/client', () => {
+import { vi } from "vitest"
+
+vi.mock('@prisma/client', async () => {
+  const actual = await vi.importActual<typeof import("@prisma/client")>("@prisma/client")
+  const actualPrismock = await vi.importActual<typeof import("prismock")>("prismock")
+
   return {
-    ...jest.requireActual('@prisma/client'),
-    PrismaClient: jest.requireActual('prismock').PrismockClient,
+    ...actual,
+    PrismaClient: await actualPrismock.createPrismockClass(actual.Prisma),
   };
 });
 ```
@@ -65,19 +72,13 @@ jest.mock('@prisma/client', () => {
 You can instantiate a `PrismockClient` directly and use it in your test, or pass it to a test version of your app.
 
 ```ts
-import { PrismockClient } from 'prismock';
+import { Prisma } from '${your_prisma_client_directory}';
+import { createPrismockClient } from 'prismock';
 
-import { PrismaService } from './prisma.service';
-
-const prismock = new PrismockClient();
-const app = createApp(prismock);
+const client = await createPrismockClient(Prisma);
 ```
 
 Then, you will be able to write your tests as if your app was using an in-memory Prisma client.
-
-## Using custom client path
-
-If you are using a custom [client path](https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/generating-prisma-client#using-a-custom-output-path), you need the [createPrismock](https://github.com/morintd/prismock/blob/master/docs/using-custom-client-path.md) method.
 
 ## Use with decimal.js
 
@@ -85,9 +86,7 @@ See [use with decimal.js](https://github.com/morintd/prismock/blob/master/docs/u
 
 ## Internal data
 
-Two additional functions are returned compared to the PrismaClient, `getData`, and `reset`. In some edge-case, we need to directly access, or reset, the data store management by _prismock_.
-
-Most of the time, you won't need it in your test, but keep in mind they exist
+Two additional functions are returned compared to the PrismaClient, `getData`, and `reset`.
 
 ```ts
 const prismock = new PrismockClient();
