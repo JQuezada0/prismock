@@ -18,7 +18,7 @@ import {
   select,
 } from './find';
 
-export const isAutoIncrement = (field: DMMF.Field) => {
+export const isAutoIncrement: (field: DMMF.Field) => boolean = (field: DMMF.Field): boolean => {
   return (field.default as DMMF.FieldDefault)?.name === 'autoincrement';
 };
 
