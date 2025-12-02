@@ -5,6 +5,7 @@ await Bun.build({
   format: 'esm',
   target: 'node',
   naming: "[name].mjs",
+  external: ["@electric-sql/pglite", "pglite-prisma-adapter"],
   plugins: [{
     name: 'selective-external',
     setup(build) {
