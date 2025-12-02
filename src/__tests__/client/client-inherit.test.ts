@@ -4,14 +4,16 @@ import { Prismock, createPrismock, createPrismockClass } from '../../lib/client'
 import { Prisma as CustomPrisma } from '../../../node_modules/.prisma-custom/client';
 import { describe, it, expect, beforeAll } from "vitest"
 
-const CustomPrismockClient = await createPrismockClass(CustomPrisma);
+const CustomPrismockClient = await createPrismockClass();
 
+// @ts-expect-error - ignore
 class PrismockService extends CustomPrismockClient {
   findLastPost() {
     return this.post.findMany({ take: 1, select: { title: true } });
   }
 }
 
+// @ts-expect-error - ignore
 class CustomPrismockService extends CustomPrismockClient {
   findLastPost() {
     return this.post.findMany({ take: 1, select: { title: true } });

@@ -4,12 +4,18 @@ import * as Client from "../../lib/client"
 vi.doMock("@prisma/client", async () => {
   const actualPrisma = await vi.importActual<typeof import("@prisma/client")>("@prisma/client");
 
+  const PrismaClient = await Client.getClientClass({
+    PrismaClient: actualPrisma.PrismaClient,
+    prismaModule: actualPrisma.Prisma,
+    schemaPath: "./prisma/schema.prisma",
+    usePgLite: process.env.PRISMOCK_USE_PG_LITE ? true : undefined,
+  })
+
   return {
     ...actualPrisma,
-    PrismaClient: await Client.createPrismockClass(),
+    PrismaClient,
   };
 })
-
 
 describe('Example', () => {
   let provider: string;

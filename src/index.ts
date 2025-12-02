@@ -1,2 +1,2 @@
 export { generatePrismock, generatePrismockSync } from './lib/prismock';
-export { createPrismock, createPrismockClient, Prismock, type PrismaModule, createPrismockClass, PrismockClientType } from './lib/client';
+export { createPrismock, Prismock, type PrismaModule, PrismockClientType, getClient, getClientClass, getDefaultClient, getDefaultClientClass } from './lib/client';
