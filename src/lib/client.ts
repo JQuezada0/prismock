@@ -237,7 +237,7 @@ export async function getClient<PrismaClientType extends new (options: { adapter
     const { PGlite } = await import("@electric-sql/pglite")
     const { PrismaPGlite } = await import("pglite-prisma-adapter")
 
-    const pglite = new PGlite()
+    const pglite = new PGlite("memory://")
     const adapter = new PrismaPGlite(pglite)
 
     const prisma = new options.prismaClient({
@@ -289,7 +289,7 @@ export async function getClientClass<PrismaClientType extends new (...args: any[
       prismockData: PrismockData
 
       constructor(...args: any[]) {
-        const pglite = new PGlite()
+        const pglite = new PGlite("memory://")
         const adapter = new PrismaPGlite(pglite)
 
         const prismaOptions = args[0] ?? {}

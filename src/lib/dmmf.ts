@@ -4,7 +4,7 @@ import * as path from 'path';
 
 const PrismaInternals = await import('@prisma/internals');
 
-const { getDMMF, getSchemaWithPath, getConfig } = PrismaInternals;
+const { getDMMF, getSchemaWithPath, getConfig } = PrismaInternals.default;
 
 export async function generateDMMF(schemaPath?: string): Promise<DMMF.Document> {
   const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));
