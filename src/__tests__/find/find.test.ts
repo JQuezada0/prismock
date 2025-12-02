@@ -17,8 +17,8 @@ import { createPrismock, PrismockClientType } from '../../lib/client';
 import { fetchProvider } from '../../lib/prismock';
 import { describe, it, expect, beforeAll } from "vitest"
 
-describe('find', () => {
-  let provider: string;
+describe('find', async () => {
+  let provider: string = await fetchProvider();
   let prismock: PrismockClientType;
   let prisma: PrismaClient;
 

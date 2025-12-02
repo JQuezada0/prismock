@@ -43,7 +43,7 @@ export async function fetchProvider(schemaPath?: string): Promise<string> {
   const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));
   const config = await generateConfig(pathToModule);
 
-  return config.generators[0].provider.value!
+  return config.datasources[0].activeProvider
 }
 
 export function getProvider(generator: Generator) {
