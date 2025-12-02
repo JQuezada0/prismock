@@ -1,7 +1,7 @@
 import { createPrismock, PrismockClientType } from '../lib/client';
 import { resetDb } from '../../testing';
 import { PrismaClient, User } from '@prisma/client';
-import { fetchGenerator, getProvider } from '../lib/prismock';
+import { fetchProvider, getProvider } from '../lib/prismock';
 import { describe, it, expect, beforeAll } from "vitest"
 
 describe('createManyAndReturn', () => {
@@ -15,9 +15,7 @@ describe('createManyAndReturn', () => {
     prisma = new PrismaClient();
     prismock = await createPrismock()
 
-    const generator = await fetchGenerator();
-    provider = getProvider(generator)!;
-    generator.stop();
+    provider = await fetchProvider()
   });
 
   describe('On success', () => {

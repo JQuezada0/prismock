@@ -2,7 +2,7 @@ import { PrismaClient, User } from '@prisma/client';
 import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { resetDb, seededUsers, simulateSeed, seededBlogs, seededServices, seededReactions } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
-import { fetchGenerator, getProvider } from '../../lib/prismock';
+import { fetchProvider } from '../../lib/prismock';
 
 describe('find', () => {
   let prismock: PrismockClientType;
@@ -20,9 +20,7 @@ describe('find', () => {
     prismock = await createPrismock()
     await simulateSeed(prismock);
 
-    const generator = await fetchGenerator();
-    provider = getProvider(generator)!;
-    generator.stop();
+    provider = await fetchProvider();
 
     realUser = (await prisma.user.findUnique({ where: { email: seededUsers[0].email } }))!;
     mockUser = (await prismock.user.findUnique({ where: { email: seededUsers[0].email } }))!;

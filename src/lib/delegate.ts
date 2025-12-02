@@ -57,7 +57,7 @@ export function generateDelegate(
 
       if (deleted.length === 0)
         return Promise.reject(
-          new PrismaClientKnownRequestError(`No record was found for a delete on ${delegate.model.name}`, {
+          new PrismaClientKnownRequestError(`No ${delegate.model.name} found`, {
             code: 'P2025',
             clientVersion,
             meta: {
@@ -79,7 +79,7 @@ export function generateDelegate(
       return update
         ? Promise.resolve(update)
         : Promise.reject(
-            new PrismaClientKnownRequestError(`No ${delegate.model.name} found`, {
+            new PrismaClientKnownRequestError(`No record was found for an update on ${delegate.model.name}`, {
               code: 'P2025',
               clientVersion,
               meta: {

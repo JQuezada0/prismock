@@ -2,7 +2,7 @@ import { Prisma, PrismaClient } from '@prisma/client';
 
 import { resetDb, seededBlogs, seededPosts, seededUsers, simulateSeed } from '../../../testing';
 import { createPrismock, createPrismockClient, type PrismockClientType } from '../../lib/client';
-import { fetchGenerator, getProvider } from '../../lib/prismock';
+import { fetchProvider, getProvider } from '../../lib/prismock';
 import { describe, it, expect, beforeAll } from "vitest"
 
 describe('client', () => {
@@ -19,9 +19,9 @@ describe('client', () => {
     prismock = await createPrismockClient(Prisma)
     await simulateSeed(prismock);
 
-    const generator = await fetchGenerator();
-    provider = getProvider(generator);
-    generator.stop();
+    // const generator = await fetchGenerator();
+    provider = await fetchProvider();
+    // generator.stop();
   }
 
   beforeAll(async () => {

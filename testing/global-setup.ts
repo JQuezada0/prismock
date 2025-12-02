@@ -6,6 +6,10 @@ import type { TestProject } from 'vitest/node'
 export default async function setup(project: TestProject) {
   console.log("Running global setup");
   await copyPrismaClient(project.config.root);
+
+  if (process.env.PRISMOCK_USE_PG_LITE) {
+    console.info('Using PgLite');
+  }
 }
 
 export async function copyPrismaClient(rootDir: string) {

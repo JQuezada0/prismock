@@ -8,7 +8,7 @@ import { isAutoIncrement } from './operations';
 import { Delegate, DelegateProperties, generateDelegate, Item } from './delegate';
 import { generateClient, PrismockClientType } from './client';
 import { camelize, omit } from './helpers';
-import { generateDMMF } from './dmmf';
+import { generateDMMF, generateConfig } from './dmmf';
 import { execSync } from 'child_process';
 
 type Options = {
@@ -27,11 +27,23 @@ const PrismaInternals = await import('@prisma/internals');
 
 const { getGenerator } = PrismaInternals;
 
-export async function fetchGenerator(schemaPath?: string) {
+// export async function fetchGenerator(schemaPath?: string) {
+//   const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));
+
+//   const config = await generateConfig(pathToModule);
+
+  
+  
+//   return getGenerator({
+//     schemaPath: pathToModule,
+//   });
+// }
+
+export async function fetchProvider(schemaPath?: string): Promise<string> {
   const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));
-  return getGenerator({
-    schemaPath: pathToModule,
-  });
+  const config = await generateConfig(pathToModule);
+
+  return config.generators[0].provider.value!
 }
 
 export function getProvider(generator: Generator) {

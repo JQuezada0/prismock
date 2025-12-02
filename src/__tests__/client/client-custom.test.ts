@@ -1,7 +1,7 @@
 import { DMMF } from '@prisma/generator-helper';
 
 import { seededUsers } from '../../../testing';
-import { fetchGenerator, generatePrismockSync, getProvider } from '../../lib/prismock';
+import { fetchProvider, generatePrismockSync, getProvider } from '../../lib/prismock';
 import { createPrismock, PrismockClientType } from '../../lib/client';
 import { generateDMMF } from '../../lib/dmmf';
 import { describe, it, expect, beforeAll } from "vitest"
@@ -10,9 +10,7 @@ describe('client (custom)', () => {
   let provider: string | undefined;
 
   beforeAll(async () => {
-    const generator = await fetchGenerator();
-    provider = getProvider(generator);
-    generator.stop();
+    provider = await fetchProvider();
   });
 
   describe('generatePrismock', () => {

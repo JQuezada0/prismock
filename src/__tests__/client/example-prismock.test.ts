@@ -15,10 +15,8 @@ describe('Example', () => {
   let provider: string;
 
   beforeAll(async () => {
-    const { fetchGenerator, getProvider } = await import('../../lib/prismock');
-    const generator = await fetchGenerator();
-    provider = getProvider(generator)!;
-    generator.stop();
+    const { fetchProvider } = await import('../../lib/prismock');
+    provider = await fetchProvider();
   });
 
   describe('With mock', () => {

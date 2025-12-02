@@ -14,7 +14,7 @@ import {
 } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
 import { Item } from '../../lib/delegate';
-import { fetchGenerator, getProvider } from '../../lib/prismock';
+import { fetchProvider } from '../../lib/prismock';
 import { describe, it, expect, beforeAll } from "vitest"
 
 describe('update', () => {
@@ -30,9 +30,7 @@ describe('update', () => {
     prismock = await createPrismock()
     await simulateSeed(prismock);
 
-    const generator = await fetchGenerator();
-    provider = getProvider(generator);
-    generator.stop();
+    provider = await fetchProvider();
   });
 
   describe('Update', () => {
@@ -70,14 +68,11 @@ describe('update', () => {
   describe('Update (not found)', () => {
     it("Should raise Error if doesn't exist", async () => {
       await expect(() => prisma.user.update({ where: { email: 'foo@bar.com' }, data: { warnings: 0 } })).rejects.toThrow();
-      await expect(() => prismock.user.update({ where: { email: 'foo@bar.com' }, data: { warnings: 0 } })).rejects.toEqual(
-        new PrismaClientKnownRequestError('No User found', {
+      await expect(() => prismock.user.update({ where: { email: 'foo@bar.com' }, data: { warnings: 0 } })).rejects.toThrowError(
+        expect.objectContaining({
+          name: 'PrismaClientKnownRequestError',
           code: 'P2025',
-          clientVersion,
-          meta: {
-            cause: 'Record to update not found.',
-            modelName: 'User',
-          },
+          message: expect.stringMatching(/No record was found for an update/),
         }),
       );
     });

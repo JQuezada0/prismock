@@ -14,7 +14,7 @@ import {
   simulateSeed,
 } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
-import { fetchGenerator, getProvider } from '../../lib/prismock';
+import { fetchProvider } from '../../lib/prismock';
 import { describe, it, expect, beforeAll } from "vitest"
 
 describe('find', () => {
@@ -35,9 +35,7 @@ describe('find', () => {
     prismock = await createPrismock()
     await simulateSeed(prismock);
 
-    const generator = await fetchGenerator();
-    provider = getProvider(generator)!;
-    generator.stop();
+    provider = await fetchProvider();
 
     realAuthor = (await prisma.user.findUnique({ where: { email: 'user1@company.com' } }))!;
     mockAuthor = (await prismock.user.findUnique({ where: { email: 'user1@company.com' } }))!;
