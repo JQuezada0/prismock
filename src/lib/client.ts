@@ -1,102 +1,118 @@
-import type { PrismaClient } from '@prisma/client';
-import type { DMMF } from '@prisma/generator-helper';
-import type * as runtime from '@prisma/client/runtime/library';
+import type { Prisma, PrismaClient } from "@prisma/client"
+import type { DMMF } from "@prisma/generator-helper"
+import type * as runtime from "@prisma/client/runtime/library"
 
-import { Delegate } from './delegate';
-import { Data, Delegates, generateDelegates } from './prismock';
-import { applyExtensions, type ExtensionsDefinition } from './extensions';
+import type { Delegate, Item } from "./delegate"
+import { Data, Delegates, generateDelegates } from "./prismock"
+import { applyExtensions, type ExtensionsDefinition } from "./extensions"
+import { execSync } from "child_process"
+import { generateDMMF } from "./dmmf"
+import { camelize } from "./helpers"
+import type { PGlite } from "@electric-sql/pglite"
+import type { PrismaPGlite } from "pglite-prisma-adapter"
 
-type GetData = () => Data;
-type SetData = (data: Data) => void;
+type GetData = () => Promise<Data>
+type SetData = (data: Data) => Promise<void>
 
 export interface PrismockData {
-  getData: GetData;
-  setData: SetData;
-  reset: () => void;
+  getData: GetData
+  setData: SetData
+  reset: () => Promise<void>
 }
-export type PrismockClientType<T = PrismaClient> = T & PrismockData;
+export type PrismockClientType<T = PrismaClient> = T & PrismockData
 
-type TransactionArgs<T> = (tx: Omit<T, '$transaction'>) => unknown | Promise<unknown>[];
+type TransactionArgs<T> = (tx: Omit<T, "$transaction">) => unknown | Promise<unknown>[]
+
+export type PrismockOptions = {
+  usePgLite?:
+    | undefined
+    | null
+    | {
+        schemaPath: string
+      }
+}
 
 export class Prismock<PC = PrismaClient> {
-  __prismaModule: PrismaModule<PC>;
+  __prismaModule: PrismaModule<PC>
 
   protected constructor(prismaModule: PrismaModule<PC>) {
-    this.__prismaModule = prismaModule;
-    this.generate();
+    this.__prismaModule = prismaModule
+    this.generate()
   }
 
   static async create<PC = PrismaClient>(prismaModule: PrismaModule<PC>) {
-    return (new Prismock<PC>(prismaModule)) as unknown as PrismockClientType<PC>;
+    return new Prismock<PC>(prismaModule) as unknown as PrismockClientType<PC>
   }
 
   static async createDefault() {
     const { Prisma, PrismaClient } = await import("@prisma/client")
 
-    return new Prismock<InstanceType<typeof PrismaClient>>(Prisma) as unknown as (PrismaClient & PrismockData);
+    return new Prismock<InstanceType<typeof PrismaClient>>(Prisma) as unknown as PrismaClient & PrismockData
   }
 
   reset() {
-    this.generate();
+    this.generate()
   }
 
   private generate() {
-    const { delegates, setData, getData } = generateDelegates({ models: this.__prismaModule.dmmf.datamodel.models as DMMF.Model[] });
+    const { delegates, setData, getData } = generateDelegates({
+      models: this.__prismaModule.dmmf.datamodel.models as DMMF.Model[],
+    })
 
     Object.entries({ ...delegates, setData, getData }).forEach(([key, value]) => {
-      if (key in this) Object.assign((this as unknown as Delegates)[key], value);
-      else Object.assign(this, { [key]: value });
-    });
+      if (key in this) Object.assign((this as unknown as Delegates)[key], value)
+      else Object.assign(this, { [key]: value })
+    })
   }
 
   async $connect() {
-    return Promise.resolve();
+    return Promise.resolve()
   }
 
   $disconnect() {
-    return Promise.resolve();
+    return Promise.resolve()
   }
 
   $on() {}
 
   $use() {
-    return this;
+    return this
   }
 
   $executeRaw() {
-    return Promise.resolve(0);
+    return Promise.resolve(0)
   }
 
   $executeRawUnsafe() {
-    return Promise.resolve(0);
+    return Promise.resolve(0)
   }
 
   $queryRaw() {
-    return Promise.resolve([]);
+    return Promise.resolve([])
   }
 
   $queryRawUnsafe() {
-    return Promise.resolve([]);
+    return Promise.resolve([])
   }
 
   $extends(extensionDefs: ExtensionsDefinition) {
-    return applyExtensions(this as unknown as PrismaClient, extensionDefs);
+    return applyExtensions(this as unknown as PrismaClient, extensionDefs)
   }
 
   async $transaction(args: any) {
     if (Array.isArray(args)) {
-      return Promise.all(args);
+      return Promise.all(args)
     }
 
-    return args(this);
+    return args(this)
   }
 }
 
 export function generateClient<T = PrismaClient>(delegates: Record<string, Delegate>, getData: GetData, setData: SetData) {
   // eslint-disable-next-line no-console
   console.log(
-    'Deprecation notice: generatePrismock and generatePrismockSync should be replaced with PrismockClient. See https://github.com/morintd/prismock/blob/master/docs/generate-prismock-deprecated.md',
-  );
+    "Deprecation notice: generatePrismock and generatePrismockSync should be replaced with PrismockClient. See https://github.com/morintd/prismock/blob/master/docs/generate-prismock-deprecated.md",
+  )
 
   const client = {
     $connect: () => Promise.resolve(),
@@ -110,47 +126,244 @@ export function generateClient<T = PrismaClient>(delegates: Record<string, Deleg
     getData,
     setData,
     ...delegates,
-  } as unknown as PrismockClientType<T>;
+  } as unknown as PrismockClientType<T>
 
   return {
     ...client,
     $transaction: async (args: TransactionArgs<T>) => {
       if (Array.isArray(args)) {
-        return Promise.all(args);
+        return Promise.all(args)
       }
 
-      return args(client);
+      return args(client)
     },
-  } as unknown as PrismockClientType<T>;
+  } as unknown as PrismockClientType<T>
 }
 
 export type PrismaModule<PC = PrismaClient> = {
-  dmmf: runtime.BaseDMMF;
-};
+  dmmf: runtime.BaseDMMF
+}
 
-export async function createPrismockClass<PC extends (new (...args: any[]) => any)  = typeof PrismaClient>(prismaModuleInput?: PrismaModule) {
-  const prismaModule = await (async () => {
-    if (prismaModuleInput) {
-      return prismaModuleInput
+function getPgLitePrismockData(options: {
+  schemaPath: string
+  pglite: InstanceType<typeof PGlite>
+  adapter: InstanceType<typeof PrismaPGlite>
+  datamodel: DMMF.Document
+  prismaClient: Record<string, any>
+}) {
+  const sql = execSync(`bun prisma migrate diff --from-empty --to-schema-datamodel=${options.schemaPath} --script`, {
+    encoding: "utf-8",
+  })
+
+  const connectionPromise = options.adapter.connect()
+
+  const reset = async () => {
+    const connection = await connectionPromise
+
+    await connection.executeScript(`
+      DROP SCHEMA public CASCADE;
+      CREATE SCHEMA public;
+    `)
+
+    // Re-run the create script
+    await connection.executeScript(sql)
+  }
+
+  const getData = async () => {
+    const data: Data = {}
+
+    for (const model of options.datamodel.datamodel.models) {
+      const tableName = model.dbName ?? model.name
+
+      const idColumn = model.fields.find((field) => field.isId)
+
+      const defaultOrderBy = []
+
+      if (idColumn) {
+        defaultOrderBy.push({ [idColumn.dbName ?? idColumn.name]: "asc" })
+      }
+
+      const orderBy = model.primaryKey?.fields.map((field) => ({ [field]: "asc" as "asc" | "desc" })) ?? defaultOrderBy
+
+      const items = await options.prismaClient[camelize(model.name) as keyof typeof options.prismaClient].findMany({
+        orderBy,
+      })
+
+      data[camelize(model.name)] = items
     }
 
-    const { Prisma } = await import("@prisma/client")
-    return Prisma
-  })()
+    return data
+  }
 
-  const c = class PrismockClientDefault extends Prismock<InstanceType<PC>> {
-    protected constructor() {
-      super(prismaModule);
+  const setData = async (data: Data) => {
+    for (const model in data) {
+      const items = data[model]
+
+      const prismaModel = options.datamodel.datamodel.models.find(
+        (m) => camelize(m.name) === camelize(model) || m.dbName === model,
+      )
+
+      if (!prismaModel) {
+        continue
+      }
+
+      const tableName = prismaModel.dbName ?? prismaModel.name
+
+      // @ts-expect-error - model name
+      await prisma[camelize(model) as keyof typeof prisma].createMany({
+        data: items,
+      })
     }
   }
 
-  return c as unknown as typeof PrismaClient;
+  return {
+    reset,
+    getData,
+    setData,
+  } satisfies PrismockData
 }
 
-export async function createPrismock() {
-  return await Prismock.createDefault()
+type GetClientOptions<PrismaClientClassType extends new (...args: any[]) => any> = {
+  prismaModule: PrismaModule<InstanceType<PrismaClientClassType>>
+  prismaClient: PrismaClientClassType
+  schemaPath: string
+  usePgLite?: boolean | null | undefined
 }
 
-export async function createPrismockClient<PC = PrismaClient>(prismaModule: PrismaModule<PC>) {
-  return await Prismock.create(prismaModule);
+export async function getClient<PrismaClientType extends new (options: { adapter?: runtime.SqlDriverAdapterFactory | null }, ...args: any[]) => any>(options: GetClientOptions<PrismaClientType>): Promise<PrismockClientType<InstanceType<PrismaClientType>>> {
+  const datamodel = await generateDMMF(options.schemaPath)
+
+  if (options.usePgLite) {
+    const { PGlite } = await import("@electric-sql/pglite")
+    const { PrismaPGlite } = await import("pglite-prisma-adapter")
+
+    const pglite = new PGlite()
+    const adapter = new PrismaPGlite(pglite)
+
+    const prisma = new options.prismaClient({
+      adapter,
+    })
+
+    const prismockData = getPgLitePrismockData({
+      schemaPath: options.schemaPath,
+      pglite,
+      adapter,
+      datamodel,
+      prismaClient: prisma,
+    })
+
+    await prismockData.reset()
+
+    return Object.assign(prisma, prismockData)
+  }
+
+  return await Prismock.create(options.prismaModule)
 }
+
+type GetClientClassOptions<PrismaClientClassType extends new (...args: any[]) => any> = {
+  prismaModule: PrismaModule<InstanceType<PrismaClientClassType>>
+  PrismaClient: PrismaClientClassType
+  schemaPath: string
+  usePgLite?: boolean | null | undefined
+}
+
+type PrismaClientClassMocked<PrismaClientType extends new (...args: any[]) => any> = PrismaClientType extends new (
+  ...args: infer Args
+) => infer Instance
+  ? (new (...args: Args) => Instance & PrismockData) & PrismaClientType
+  : never
+
+export async function getClientClass<PrismaClientType extends new (...args: any[]) => any>(
+  options: GetClientClassOptions<PrismaClientType>,
+): Promise<PrismaClientClassMocked<PrismaClientType>> {
+  const datamodel = await generateDMMF(options.schemaPath)
+
+  if (options.usePgLite) {
+    const { PGlite } = await import("@electric-sql/pglite")
+    const { PrismaPGlite } = await import("pglite-prisma-adapter")
+
+    class PrismaClientMocked extends options.PrismaClient {
+      pglite: InstanceType<typeof PGlite>
+      adapter: InstanceType<typeof PrismaPGlite>
+      datamodel: DMMF.Document
+      prismockData: PrismockData
+
+      constructor(...args: any[]) {
+        const pglite = new PGlite()
+        const adapter = new PrismaPGlite(pglite)
+
+        const prismaOptions = args[0] ?? {}
+
+        super({ ...prismaOptions, adapter })
+
+        this.pglite = pglite
+        this.adapter = adapter
+        this.datamodel = datamodel
+        this.prismockData = getPgLitePrismockData({
+          schemaPath: options.schemaPath,
+          pglite,
+          adapter,
+          datamodel,
+          prismaClient: this,
+        })
+      }
+
+      async $connect(): runtime.JsPromise<void> {
+        await this.reset()
+        
+        return super.$connect()
+      }
+
+      async reset() {
+        await this.prismockData.reset()
+      }
+
+      async getData() {
+        return this.prismockData.getData()
+      }
+
+      async setData(data: Data) {
+        return this.prismockData.setData(data)
+      }
+    }
+
+    return PrismaClientMocked as PrismaClientClassMocked<PrismaClientType>
+  }
+
+  class PrismaClientMocked extends Prismock<InstanceType<PrismaClientType>> {
+    protected constructor() {
+      super(options.prismaModule)
+    }
+  }
+
+  return PrismaClientMocked as unknown as PrismaClientClassMocked<PrismaClientType>
+}
+
+export async function getDefaultClient() {
+  const { Prisma, PrismaClient } = await import("@prisma/client")
+
+  return await getClient({
+    prismaModule: Prisma,
+    prismaClient: PrismaClient,
+    schemaPath: "./prisma/schema.prisma",
+    usePgLite: process.env.PRISMOCK_USE_PG_LITE ? true : undefined,
+  })
+}
+
+export async function getDefaultClientClass() {
+  const { Prisma, PrismaClient } = await import("@prisma/client")
+
+  return await getClientClass({
+    prismaModule: Prisma,
+    PrismaClient: PrismaClient,
+    schemaPath: "./prisma/schema.prisma",
+    usePgLite: process.env.PRISMOCK_USE_PG_LITE ? true : undefined,
+  })
+}
+
+/**
+ * For backwards compatibility
+ */
+
+export const createPrismock = getDefaultClient
+export const createPrismockClass = getDefaultClientClass

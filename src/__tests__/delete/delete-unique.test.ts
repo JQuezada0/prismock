@@ -64,7 +64,7 @@ describe('delete unique', () => {
 
     it('Should delete user from stored data', async () => {
       const stored = await prisma.blog.findMany();
-      const mockStored = prismock.getData().blog;
+      const mockStored = (await prismock.getData()).blog;
 
       expect(stored.find((blog) => blog.title === 'blog-9')).toBeUndefined();
       expect(mockStored.find((blog) => blog.title === 'blog-9')).toBeUndefined();

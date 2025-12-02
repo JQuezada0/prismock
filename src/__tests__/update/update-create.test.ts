@@ -102,7 +102,7 @@ describe('update (create)', () => {
     ].map((post) => ({ ...post, createdAt: expect.any(Date), imprint: expect.any(String) }));
 
     const stored = await prisma.post.findMany();
-    const mockStored = prismock.getData().post;
+    const mockStored = (await prismock.getData()).post;
 
     expect(formatEntries(stored)).toEqual(
       formatEntries([

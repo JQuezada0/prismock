@@ -95,7 +95,7 @@ describe('updateMany (nested/multiple)', () => {
     const stored = (await prisma.post.findMany())
       .sort((a, b) => a.id.toString().localeCompare(b.id.toString()))
       .map(({ imprint, ...post }) => post);
-    const mockStored = prismock.getData().post.map(({ imprint, ...post }) => post);
+    const mockStored = (await prismock.getData()).post.map(({ imprint, ...post }) => post);
 
     expect(formatEntries(stored)).toEqual(
       formatEntries([

@@ -1,8 +1,8 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 
 import { resetDb, seededBlogs, seededPosts, seededUsers, simulateSeed } from '../../../testing';
-import { createPrismock, createPrismockClient, type PrismockClientType } from '../../lib/client';
-import { fetchGenerator, getProvider } from '../../lib/prismock';
+import { createPrismock, type PrismockClientType } from '../../lib/client';
+import { fetchProvider } from '../../lib/prismock';
 import { describe, it, expect, beforeAll } from "vitest"
 
 describe('client', () => {
@@ -16,12 +16,10 @@ describe('client', () => {
 
     prisma = new PrismaClient();
 
-    prismock = await createPrismockClient(Prisma)
+    prismock = await createPrismock()
     await simulateSeed(prismock);
 
-    const generator = await fetchGenerator();
-    provider = getProvider(generator);
-    generator.stop();
+    provider = await fetchProvider();
   }
 
   beforeAll(async () => {

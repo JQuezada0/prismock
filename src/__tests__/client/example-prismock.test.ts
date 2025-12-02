@@ -4,21 +4,25 @@ import * as Client from "../../lib/client"
 vi.doMock("@prisma/client", async () => {
   const actualPrisma = await vi.importActual<typeof import("@prisma/client")>("@prisma/client");
 
+  const PrismaClient = await Client.getClientClass({
+    PrismaClient: actualPrisma.PrismaClient,
+    prismaModule: actualPrisma.Prisma,
+    schemaPath: "./prisma/schema.prisma",
+    usePgLite: process.env.PRISMOCK_USE_PG_LITE ? true : undefined,
+  })
+
   return {
     ...actualPrisma,
-    PrismaClient: await Client.createPrismockClass(),
+    PrismaClient,
   };
 })
-
 
 describe('Example', () => {
   let provider: string;
 
   beforeAll(async () => {
-    const { fetchGenerator, getProvider } = await import('../../lib/prismock');
-    const generator = await fetchGenerator();
-    provider = getProvider(generator)!;
-    generator.stop();
+    const { fetchProvider } = await import('../../lib/prismock');
+    provider = await fetchProvider();
   });
 
   describe('With mock', () => {
@@ -27,6 +31,8 @@ describe('Example', () => {
       const { buildUser, formatEntries, formatEntry } = await import('../../../testing');
 
       const prisma = new PrismaClient();
+
+      await prisma.$connect()
 
       const user = await prisma.user.create({ data: { email: 'user1@company.com', password: 'password', warnings: 0 } });
       const found = await prisma.user.findMany();

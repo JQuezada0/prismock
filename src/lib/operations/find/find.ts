@@ -205,7 +205,7 @@ export function select(selectArgs: FindArgs['select']) {
   };
 }
 
-export const getJoinField = (field: DMMF.Field, delegates: Delegates) => {
+export const getJoinField: (field: DMMF.Field, delegates: Delegates) => DMMF.Field | undefined = (field: DMMF.Field, delegates: Delegates): DMMF.Field | undefined => {
   const joinDelegate = Object.values(delegates).find((delegate) => {
     return delegate.model.name === field.type;
   });
@@ -217,12 +217,16 @@ export const getJoinField = (field: DMMF.Field, delegates: Delegates) => {
   return joinfield;
 };
 
-export const getDelegateFromField = (field: DMMF.Field, delegates: Delegates) => {
+export const getDelegateFromField: (field: DMMF.Field, delegates: Delegates) => Delegate = (field: DMMF.Field, delegates: Delegates): Delegate => {
   const delegateName = camelize(field.type);
   return delegates[delegateName];
 };
 
-export const getFieldRelationshipWhere = (
+export const getFieldRelationshipWhere: (
+  item: Item,
+  field: DMMF.Field,
+  delegates: Delegates,
+) => Record<string, GroupByFieldArg> = (
   item: Item,
   field: DMMF.Field,
   delegates: Delegates,
@@ -238,13 +242,13 @@ export const getFieldRelationshipWhere = (
   };
 };
 
-export const getFieldFromRelationshipWhere = (item: Item, field: DMMF.Field) => {
+export const getFieldFromRelationshipWhere: (item: Item, field: DMMF.Field) => Record<string, GroupByFieldArg> = (item: Item, field: DMMF.Field): Record<string, GroupByFieldArg> => {
   return {
     [field.relationFromFields![0]]: item[field.relationToFields![0]] as GroupByFieldArg,
   };
 };
 
-export const getFieldToRelationshipWhere = (item: Item, field: DMMF.Field) => {
+export const getFieldToRelationshipWhere: (item: Item, field: DMMF.Field) => Record<string, GroupByFieldArg> = (item: Item, field: DMMF.Field): Record<string, GroupByFieldArg> => {
   return {
     [field.relationToFields![0]]: item[field.relationFromFields![0]] as GroupByFieldArg,
   };

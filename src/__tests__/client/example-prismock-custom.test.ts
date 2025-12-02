@@ -21,6 +21,8 @@ describe('Example', () => {
       const { PrismaClient } = await import('@prisma-custom/client');
       const prisma = new PrismaClient();
 
+      await prisma.$connect()
+
       const user = await prisma.user.create({ data: { email: 'user1@company.com', password: 'password', warnings: 0 } });
       const found = await prisma.user.findMany();
 
