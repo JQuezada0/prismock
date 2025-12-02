@@ -43,7 +43,8 @@
   "devDependencies": {
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
-    "@prisma/client": "5.22.0",
+    "@electric-sql/pglite": "0.3.14",
+    "@prisma/client": "6.10.0",
     "@semantic-release/changelog": "6.0.3",
     "@semantic-release/commit-analyzer": "13.0.1",
     "@semantic-release/git": "10.0.1",
@@ -72,8 +73,9 @@
     "fs-jetpack": "5.1.0",
     "husky": "9.1.7",
     "lint-staged": "16.1.6",
+    "pglite-prisma-adapter": "0.6.1",
     "prettier": "2.8.8",
-    "prisma": "5.22.0",
+    "prisma": "6.10.0",
     "release-it": "19.0.6",
     "semantic-release": "24.2.7",
     "ts-node": "10.9.2",
@@ -101,12 +103,12 @@
   },
   "dependencies": {
     "@paralleldrive/cuid2": "2.2.2",
-    "@prisma/generator-helper": "5.22.0",
-    "@prisma/internals": "5.22.0",
+    "@prisma/generator-helper": "6.10.0",
+    "@prisma/internals": "6.10.0",
     "bson": "6.10.4"
   },
   "peerDependencies": {
-    "@prisma/client": "*",
-    "prisma": "*"
+    "@prisma/client": ">= 6.10.0",
+    "prisma": ">= 6.10.0"
   }
 }

@@ -33,7 +33,7 @@ describe('create', () => {
       friends: 1,
       money: BigInt('534543543534'),
       parameters: { content: true },
-      signal: Buffer.from([1, 2, 3, 4]),
+      signal: new Uint8Array([1, 2, 3, 4]),
       warnings: 1,
     },
     user4: { email: 'user-many-1@company.com', password: 'password', warnings: 0, birthday: new Date('01-01-1971') },
@@ -135,7 +135,7 @@ describe('create', () => {
         friends: 1,
         money: BigInt('534543543534'),
         parameters: { content: true },
-        signal: Buffer.from([1, 2, 3, 4]),
+        signal: new Uint8Array([1, 2, 3, 4]),
         warnings: 1,
       });
 
@@ -212,7 +212,7 @@ describe('create', () => {
         },
       ];
 
-      const mockUsers = prismock.getData().user.slice(-2);
+      const mockUsers = (await prismock.getData()).user.slice(-2);
       const realUsers = await prisma.user.findMany({
         where: { email: { in: ['user-many-1@company.com', 'user-many-2@company.com'] } },
       });

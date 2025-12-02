@@ -79,7 +79,7 @@ describe('delete (includes)', () => {
 
   it('Should delete blog from stored data', async () => {
     const stored = await prisma.blog.findMany();
-    const mockStored = prismock.getData().blog;
+    const mockStored = (await prismock.getData()).blog;
 
     expect(stored).toEqual([realBlog2]);
     expect(mockStored).toEqual([mockBlog2]);

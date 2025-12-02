@@ -59,7 +59,7 @@ describe('update', () => {
 
     it('Should update stored data', async () => {
       const expectedStore = [buildUser(1, { warnings: 99 }), seededUsers[1], seededUsers[2]];
-      const mockStored = prismock.getData().user;
+      const mockStored = (await prismock.getData()).user.sort((a, b) => a.id.toString().localeCompare(b.id.toString()));
       const stored = (await prisma.user.findMany()).sort((a, b) => a.id.toString().localeCompare(b.id.toString()));
 
       expect(formatEntries(stored)).toEqual(formatEntries(expectedStore));

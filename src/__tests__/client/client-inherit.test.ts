@@ -35,6 +35,8 @@ describe('client', () => {
     prisma = new PrismaService();
     prismock = new PrismockService();
     customPrismock = new CustomPrismockService();
+    await prismock.reset()
+    await customPrismock.reset()
     await simulateSeed(prismock);
     await simulateSeed(customPrismock);
   }

@@ -8,6 +8,8 @@ import { isAutoIncrement } from './operations';
 import { Delegate, DelegateProperties, generateDelegate, Item } from './delegate';
 import { generateClient, PrismockClientType } from './client';
 import { camelize, omit } from './helpers';
+import { generateDMMF } from './dmmf';
+import { execSync } from 'child_process';
 
 type Options = {
   schemaPath?: string;
@@ -23,13 +25,7 @@ export type Delegates = Record<string, Delegate>;
 
 const PrismaInternals = await import('@prisma/internals');
 
-const { getDMMF, getGenerator, getSchema } = PrismaInternals;
-
-export async function generateDMMF(schemaPath?: string) {
-  const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));
-  const datamodel = await getSchema(pathToModule);
-  return getDMMF({ datamodel });
-}
+const { getGenerator } = PrismaInternals;
 
 export async function fetchGenerator(schemaPath?: string) {
   const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));
@@ -58,11 +54,11 @@ export function generateDelegates(options: OptionsSync) {
   const properties: Properties = {};
   const delegates: Delegates = {};
 
-  function getData() {
+  async function getData() {
     return data;
   }
 
-  function setData(d: Data) {
+  async function setData(d: Data) {
     // eslint-disable-next-line no-console
     console.log(
       'Deprecation notice: setData will be removed in a future version and should not be used anymore. Please use a mix of "reset" and create/createMany to achieve the same result',

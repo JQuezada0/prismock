@@ -45,7 +45,7 @@ describe('upsert', () => {
     it('Should store updated', async () => {
       const expectedStored = [buildUser(1, { warnings: 99 }), seededUsers[1], seededUsers[2]];
       const stored = (await prisma.user.findMany()).sort((a, b) => a.id.toString().localeCompare(b.id.toString()));
-      const mockStored = prismock.getData().user;
+      const mockStored = (await prismock.getData()).user;
 
       expect(formatEntries(stored)).toEqual(formatEntries(expectedStored));
       expect(formatEntries(mockStored)).toEqual(formatEntries(expectedStored));
@@ -80,7 +80,7 @@ describe('upsert', () => {
     it('Should store updated', async () => {
       const expectedStored = [buildUser(1, { warnings: 99 }), seededUsers[1], seededUsers[2], buildUser(4)];
       const stored = (await prisma.user.findMany()).sort((a, b) => a.email.localeCompare(b.email));
-      const mockStored = prismock.getData().user;
+      const mockStored = (await prismock.getData()).user;
 
       expect(formatEntries(stored)).toEqual(formatEntries(expectedStored));
       expect(formatEntries(mockStored)).toEqual(formatEntries(expectedStored));

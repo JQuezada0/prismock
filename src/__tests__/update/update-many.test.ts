@@ -40,7 +40,7 @@ describe('updateMany', () => {
 
   it('Should update stored data', async () => {
     const expectedStore = [buildUser(1, { warnings: 0 }), buildUser(2, { warnings: 99 }), buildUser(3, { warnings: 99 })];
-    const mockStored = prismock.getData().user;
+    const mockStored = (await prismock.getData()).user;
     const stored = await prisma.user.findMany();
 
     expect(formatEntries(stored)).toEqual(formatEntries(expectedStore));

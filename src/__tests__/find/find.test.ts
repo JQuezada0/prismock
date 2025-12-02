@@ -634,12 +634,11 @@ describe('find', () => {
 
     it("Should throw if doesn't exist", async () => {
       await expect(() => prisma.user.findFirstOrThrow({ where: { warnings: -1 } })).rejects.toThrow();
-      await expect(() => prismock.user.findFirstOrThrow({ where: { warnings: -1 } })).rejects.toEqual(
-        new PrismaClientKnownRequestError('No User found', {
-          code: 'P2025',
-          clientVersion,
-        }),
-      );
+      await expect(() => prismock.user.findFirstOrThrow({ where: { warnings: -1 } })).rejects.toThrowError(expect.objectContaining({
+        name: 'PrismaClientKnownRequestError',
+        "code": "P2025",
+        message: expect.stringMatching(/No record was found for a query/)
+      }))
     });
   });
 
@@ -659,12 +658,11 @@ describe('find', () => {
 
     it("Should throw if doesn't exist", async () => {
       await expect(() => prisma.user.findUniqueOrThrow({ where: { email: 'does-not-exist' } })).rejects.toThrow();
-      await expect(() => prismock.user.findUniqueOrThrow({ where: { email: 'does-not-exist' } })).rejects.toEqual(
-        new PrismaClientKnownRequestError('No User found', {
-          code: 'P2025',
-          clientVersion,
-        }),
-      );
+      await expect(() => prismock.user.findUniqueOrThrow({ where: { email: 'does-not-exist' } })).rejects.toThrowError(expect.objectContaining({
+        name: "PrismaClientKnownRequestError",
+        "code": "P2025",
+        message: expect.stringMatching(/No record was found for a query/)
+      }))
     });
   });
 });

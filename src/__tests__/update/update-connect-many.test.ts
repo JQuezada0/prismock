@@ -78,7 +78,7 @@ describe('update (connect - many)', () => {
 
   // it('Should store connected', async () => {
   //   const stored = await prisma.post.findMany();
-  //   const mockStored = prismock.getData().post;
+  //   const mockStored = (await prismock.getData()).post;
 
   //   expect(formatEntries(stored.map(({ createdAt, imprint, ...post }) => post))).toEqual(
   //     formatEntries(seededPosts.map(({ createdAt, imprint, ...post }) => ({ ...post, authorId: realAuthor.id }))),

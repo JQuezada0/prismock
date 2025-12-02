@@ -57,7 +57,7 @@ export function generateDelegate(
 
       if (deleted.length === 0)
         return Promise.reject(
-          new PrismaClientKnownRequestError(`No ${delegate.model.name} found`, {
+          new PrismaClientKnownRequestError(`No record was found for a delete on ${delegate.model.name}`, {
             code: 'P2025',
             clientVersion,
             meta: {
@@ -127,7 +127,7 @@ export function generateDelegate(
       const found = findOne(args, delegate, delegates);
       if (!found)
         return Promise.reject(
-          new PrismaClientKnownRequestError(`No ${delegate.model.name} found`, {
+          new PrismaClientKnownRequestError(`No record was found for a query on ${delegate.model.name}`, {
             code: 'P2025',
             clientVersion,
           }),
@@ -138,7 +138,7 @@ export function generateDelegate(
       const found = findOne(args, delegate, delegates);
       if (!found)
         return Promise.reject(
-          new PrismaClientKnownRequestError(`No ${delegate.model.name} found`, {
+          new PrismaClientKnownRequestError(`No record was found for a query on ${delegate.model.name}`, {
             code: 'P2025',
             clientVersion,
           }),

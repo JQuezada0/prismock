@@ -110,7 +110,12 @@ jobs:
       - name: Run Prisma migrations
         run: bunx prisma migrate dev --name init
 
-      - name: Run tests
+      - name: Run tests with Prismock
+        run: bun run test
+
+      - name: Run tests with Prismock PgLite
+        env:
+          PRISMOCK_USE_PG_LITE: true
         run: bun run test
 
   test-mongodb:
