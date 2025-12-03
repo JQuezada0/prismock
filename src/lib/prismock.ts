@@ -23,22 +23,6 @@ export type Data = Record<string, Item[]>;
 export type Properties = Record<string, DelegateProperties>;
 export type Delegates = Record<string, Delegate>;
 
-const PrismaInternals = await import('@prisma/internals');
-
-const { getGenerator } = PrismaInternals;
-
-// export async function fetchGenerator(schemaPath?: string) {
-//   const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));
-
-//   const config = await generateConfig(pathToModule);
-
-  
-  
-//   return getGenerator({
-//     schemaPath: pathToModule,
-//   });
-// }
-
 export async function fetchProvider(schemaPath?: string): Promise<string> {
   const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));
   const config = await generateConfig(pathToModule);
