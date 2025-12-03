@@ -151,9 +151,14 @@ function getPgLitePrismockData(options: {
   datamodel: DMMF.Document
   prismaClient: Record<string, any>
 }) {
-  const sql = execSync(`bun prisma migrate diff --from-empty --to-schema-datamodel=${options.schemaPath} --script`, {
+  const rawSql = execSync(`bun prisma migrate diff --from-empty --to-schema-datamodel=${options.schemaPath} --script`, {
     encoding: "utf-8",
   })
+
+  const sql = rawSql.replace(
+    /((?:CONSTRAINT\s+"[^"]+"\s+)?FOREIGN KEY\s*\([^)]*\)\s*REFERENCES\s+[^\s(]+\s*\([^)]*\))(?![\s\S]*?\bDEFERRABLE\b)/gi,
+    `$1 DEFERRABLE INITIALLY DEFERRED`
+  )
 
   const connectionPromise = options.adapter.connect()
 
