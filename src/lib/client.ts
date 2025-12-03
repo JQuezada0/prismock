@@ -155,9 +155,14 @@ function getPgLitePrismockData(options: {
     encoding: "utf-8",
   })
 
+  // Patch FK constraints to add DEFERRABLE INITIALLY DEFERRED at the correct position
   const sql = rawSql.replace(
-    /((?:CONSTRAINT\s+"[^"]+"\s+)?FOREIGN KEY\s*\([^)]*\)\s*REFERENCES\s+[^\s(]+\s*\([^)]*\))(?![\s\S]*?\bDEFERRABLE\b)/gi,
-    `$1 DEFERRABLE INITIALLY DEFERRED`
+    /((?:CONSTRAINT\s+"[^"]+"\s+)?FOREIGN KEY\s*\([^)]*\)\s*REFERENCES\s+[^\s(]+\s*\([^)]*\)(?:\s+MATCH\s+\w+)?(?:\s+ON\s+DELETE\s+\w+)?(?:\s+ON\s+UPDATE\s+\w+)?)(;)/gi,
+    (full, fkClause, semicolon) => {
+      // If already deferrable, leave untouched
+      if (/DEFERRABLE/i.test(fkClause)) return full
+      return `${fkClause} DEFERRABLE INITIALLY DEFERRED${semicolon}`
+    },
   )
 
   const connectionPromise = options.adapter.connect()
@@ -235,7 +240,9 @@ type GetClientOptions<PrismaClientClassType extends new (...args: any[]) => any>
   usePgLite?: boolean | null | undefined
 }
 
-export async function getClient<PrismaClientType extends new (options: { adapter?: runtime.SqlDriverAdapterFactory | null }, ...args: any[]) => any>(options: GetClientOptions<PrismaClientType>): Promise<PrismockClientType<InstanceType<PrismaClientType>>> {
+export async function getClient<
+  PrismaClientType extends new (options: { adapter?: runtime.SqlDriverAdapterFactory | null }, ...args: any[]) => any,
+>(options: GetClientOptions<PrismaClientType>): Promise<PrismockClientType<InstanceType<PrismaClientType>>> {
   const datamodel = await generateDMMF(options.schemaPath)
 
   if (options.usePgLite) {
@@ -315,7 +322,7 @@ export async function getClientClass<PrismaClientType extends new (...args: any[
 
       async $connect(): runtime.JsPromise<void> {
         await this.reset()
-        
+
         return super.$connect()
       }
 

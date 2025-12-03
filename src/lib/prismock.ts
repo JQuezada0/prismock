@@ -9,7 +9,6 @@ import { Delegate, DelegateProperties, generateDelegate, Item } from './delegate
 import { generateClient, PrismockClientType } from './client';
 import { camelize, omit } from './helpers';
 import { generateDMMF, generateConfig } from './dmmf';
-import { execSync } from 'child_process';
 
 type Options = {
   schemaPath?: string;
