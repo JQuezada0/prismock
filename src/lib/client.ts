@@ -1,6 +1,8 @@
 import type { Prisma, PrismaClient } from "@prisma/client"
 import type { DMMF } from "@prisma/generator-helper"
 import type * as runtime from "@prisma/client/runtime/library"
+import * as path from "path"
+import * as fs from "fs"
 
 import type { Delegate, Item } from "./delegate"
 import { Data, Delegates, generateDelegates } from "./prismock"
@@ -144,26 +146,20 @@ export type PrismaModule<PC = PrismaClient> = {
   dmmf: runtime.BaseDMMF
 }
 
-function getPgLitePrismockData(options: {
+export function getPgLitePrismockData(options: {
   schemaPath: string
   pglite: InstanceType<typeof PGlite>
   adapter: InstanceType<typeof PrismaPGlite>
   datamodel: DMMF.Document
   prismaClient: Record<string, any>
 }) {
-  const rawSql = execSync(`bun prisma migrate diff --from-empty --to-schema-datamodel=${options.schemaPath} --script`, {
-    encoding: "utf-8",
+  const schemaPathDir = path.dirname(options.schemaPath)
+  const migrationsPath = path.join(schemaPathDir, "migrations")
+  const migrationsDirContents = fs.readdirSync(migrationsPath, {
+    withFileTypes: true
   })
 
-  // Patch FK constraints to add DEFERRABLE INITIALLY DEFERRED at the correct position
-  const sql = rawSql.replace(
-    /((?:CONSTRAINT\s+"[^"]+"\s+)?FOREIGN KEY\s*\([^)]*\)\s*REFERENCES\s+[^\s(]+\s*\([^)]*\)(?:\s+MATCH\s+\w+)?(?:\s+ON\s+DELETE\s+\w+)?(?:\s+ON\s+UPDATE\s+\w+)?)(;)/gi,
-    (full, fkClause, semicolon) => {
-      // If already deferrable, leave untouched
-      if (/DEFERRABLE/i.test(fkClause)) return full
-      return `${fkClause} DEFERRABLE INITIALLY DEFERRED${semicolon}`
-    },
-  )
+  const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory())
 
   const connectionPromise = options.adapter.connect()
 
@@ -175,8 +171,12 @@ function getPgLitePrismockData(options: {
       CREATE SCHEMA public;
     `)
 
-    // Re-run the create script
-    await connection.executeScript(sql)
+    for (const migration of migrationsDir) {
+      const migrationPath = path.join(migrationsPath, migration.name, "migration.sql")
+      const migrationContent = await fs.promises.readFile(migrationPath, "utf8")
+  
+      await connection.executeScript(migrationContent)
+    }
   }
 
   const getData = async () => {

@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { describe, it, expect, beforeAll } from "vitest"
+import { describe, expect, beforeAll } from "vitest"
+import { it } from "../../../testing/helpers"
 import { resetDb, seededBlogs, seededUsers, simulateSeed } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
 
@@ -18,13 +19,16 @@ describe('create (connectOrCreate)', () => {
 
   beforeAll(async () => {
     await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
-    await simulateSeed(prismock);
   });
 
-  it('Should create and connect to existing', async () => {
+  it.beforeEach(async ({ prismock, prisma }) => {
+    await Promise.all([
+      simulateSeed(prismock),
+      simulateSeed(prisma),
+    ])
+  })
+
+  it('Should create and connect to existing', async ({ prismock, prisma }) => {
     const mockPost = await prismock.post.create({
       data: {
         title: 'title-connect',
@@ -85,7 +89,7 @@ describe('create (connectOrCreate)', () => {
     });
   });
 
-  it('Should create with dependencies and connect to it', async () => {
+  it('Should create with dependencies and connect to it', async ({ prismock, prisma }) => {
     const mockPost = await prismock.post.create({
       data: {
         title: 'title-connect-create',
