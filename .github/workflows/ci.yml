@@ -187,7 +187,7 @@ jobs:
         run: bunx prisma db seed
 
       - name: Run tests
-        run: bun run test
+        run: bun run test --reporter=verbose
 
   test-mysql:
     name: Test MySQL
@@ -245,5 +245,5 @@ jobs:
         run: bunx prisma migrate dev --name init
 
       - name: Run tests
-        run: bun run test
+        run: bun run test --reporter=verbose
 

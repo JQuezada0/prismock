@@ -67,7 +67,7 @@ export const it = vitestIt.extend<TestContextExtended>({
       strict: true,
       trim: true,
       replacement: "_",
-    })
+    }).substring(0, 62)
 
     const { prisma } = await getFileLevelClients(databaseName)
 
@@ -79,7 +79,7 @@ export const it = vitestIt.extend<TestContextExtended>({
       strict: true,
       trim: true,
       replacement: "_",
-    })
+    }).substring(0, 62)
 
     const { prismock } = await getFileLevelClients(databaseName)
 
