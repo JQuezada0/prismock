@@ -1,8 +1,7 @@
-import { Blog, PrismaClient, User } from '@prisma/client';
+import type { Blog, User } from '@prisma/client';
 import { createId } from '@paralleldrive/cuid2';
 
-import { resetDb, seededUsers, simulateSeed } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
+import { seededUsers, simulateSeed } from '../../../testing';
 import { it, expect, beforeAll } from "vitest"
 import { describe } from "../../../testing/helpers"
 

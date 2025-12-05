@@ -1,9 +1,6 @@
-import { PrismaClient, Role, User } from '@prisma/client';
-import { version as clientVersion } from '@prisma/client/package.json';
+import { Role, User } from '@prisma/client';
 
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { formatEntries, formatEntry, generateId, resetDb, simulateSeed } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
+import { formatEntries, formatEntry, generateId, simulateSeed } from '../../../testing';
 import { it, expect, beforeAll } from 'vitest';
 import { describe } from "../../../testing/helpers"
 

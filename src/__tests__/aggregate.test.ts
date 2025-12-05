@@ -1,11 +1,8 @@
-import { PrismaClient } from '@prisma/client';
-
-import { resetDb, simulateSeed } from '../../testing';
-import { createPrismock, PrismockClientType } from '../lib/client';
-import { it, expect, beforeAll } from "vitest"
+import { simulateSeed } from '../../testing';
+import { it, expect } from "vitest"
 import { describe } from "../../testing/helpers"
 
-describe('aggregate', ({ prisma, prismock }) => {
+describe('aggregate', ({ prisma, prismock, beforeAll }) => {
   beforeAll(async () => {
     await simulateSeed(prisma);
     await simulateSeed(prismock);

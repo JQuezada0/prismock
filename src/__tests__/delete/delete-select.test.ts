@@ -1,7 +1,6 @@
-import { Blog, Post, PrismaClient } from '@prisma/client';
+import type { Blog, Post } from '@prisma/client';
 
-import { seededBlogs, resetDb,   simulateSeed, seededPosts } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
+import { seededBlogs,   simulateSeed, seededPosts } from '../../../testing';
 import { omit } from '../../lib/helpers';
 import { it, expect, beforeAll } from "vitest"
 import { describe } from "../../../testing/helpers"

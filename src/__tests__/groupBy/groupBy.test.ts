@@ -1,6 +1,5 @@
-import { PrismaClient, User } from '@prisma/client';
-import { buildUser, resetDb, seededUsers, simulateSeed } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
+import type { User } from '@prisma/client';
+import { buildUser, seededUsers, simulateSeed } from '../../../testing';
 import { it, expect, beforeAll } from "vitest"
 import { describe } from "../../../testing/helpers"
 

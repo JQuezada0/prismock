@@ -1,24 +1,20 @@
-import { PrismaClient, Service, type User } from '@prisma/client';
-import { version as clientVersion } from '@prisma/client/package.json';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import type { Service, User } from '@prisma/client';
 
 import {
   buildUser,
   formatEntries,
   formatEntry,
-  resetDb,
   seededReactions,
   seededServices,
   seededUsers,
   simulateSeed,
 } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
-import { Item } from '../../lib/delegate';
+import type { Item } from '../../lib/delegate';
 import { fetchProvider } from '../../lib/prismock';
-import { it, expect, beforeAll } from "vitest"
+import { it } from "vitest"
 import { describe } from "../../../testing/helpers"
 
-describe('update', ({ prisma, prismock }) => {
+describe('update', ({ prisma, prismock, beforeAll }) => {
   let provider: string;
 
   beforeAll(async () => {
@@ -43,14 +39,14 @@ describe('update', ({ prisma, prismock }) => {
       });
     });
 
-    it('Should return updated item', () => {
+    it('Should return updated item', ({ expect }) => {
       const expected = buildUser(1, { warnings: 99 });
 
       expect(formatEntry(realUpdate)).toEqual(formatEntry(expected));
       expect(formatEntry(mockUpdate)).toEqual(formatEntry(expected));
     });
 
-    it('Should update stored data', async () => {
+    it('Should update stored data', async ({ expect }) => {
       const expectedStore = [buildUser(1, { warnings: 99 }), seededUsers[1], seededUsers[2]];
       const mockStored = ((await prismock.getData()).user as User[]).sort((a, b) => a.id.toString().localeCompare(b.id.toString()));
       const stored = (await prisma.user.findMany()).sort((a, b) => a.id.toString().localeCompare(b.id.toString()));
@@ -61,7 +57,7 @@ describe('update', ({ prisma, prismock }) => {
   });
 
   describe('Update (not found)', () => {
-    it("Should raise Error if doesn't exist", async () => {
+    it("Should raise Error if doesn't exist", async ({ expect }) => {
       await expect(() => prisma.user.update({ where: { email: 'foo@bar.com' }, data: { warnings: 0 } })).rejects.toThrow();
       await expect(() => prismock.user.update({ where: { email: 'foo@bar.com' }, data: { warnings: 0 } })).rejects.toThrowError(
         expect.objectContaining({
@@ -101,7 +97,7 @@ describe('update', ({ prisma, prismock }) => {
       });
     });
 
-    it.runIf(['mongodb', 'postgresql'].includes(provider))('Should update stored data', async () => {
+    it.runIf(['mongodb', 'postgresql'].includes(provider))('Should update stored data', async ({ expect }) => {
       const mockStored = await prismock.service.findMany({ select: { name: true, tags: true, userId: true } });
       const stored = await prisma.service.findMany({ select: { name: true, tags: true, userId: true } });
 
@@ -157,7 +153,7 @@ describe('update', ({ prisma, prismock }) => {
       }
     });
 
-    it('Should update expected entry', async () => {
+    it('Should update expected entry', async ({ expect }) => {
       if (provider !== 'mongodb') {
         const updatedReaction = seededReactions[0];
         const untouchedReaction = seededReactions[1];
@@ -186,7 +182,7 @@ describe('update', ({ prisma, prismock }) => {
       }
     });
 
-    it('Should not update other data', async () => {
+    it('Should not update other data', async ({ expect }) => {
       if (provider !== 'mongodb') {
         const updatedReaction = seededReactions[0];
         const untouchedReaction = seededReactions[1];

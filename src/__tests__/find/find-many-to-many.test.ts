@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client';
 import { it, expect, beforeAll } from "vitest"
 import { describe } from "../../../testing/helpers"
-import { buildSubscription, resetDb, seededBlogs, seededUsers, simulateSeed } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
+import { buildSubscription, seededBlogs, seededUsers, simulateSeed } from '../../../testing';
 
 describe('find (many-to-many)', ({ prisma, prismock  }) => {
   beforeAll(async () => {

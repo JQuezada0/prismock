@@ -6,7 +6,6 @@ import {
   formatEntry,
   generateId,
   isUUID,
-  resetDb,
   seededBlogs,
   seededUsers,
   simulateSeed,

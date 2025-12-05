@@ -1,7 +1,6 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import { it, expect, beforeAll } from "vitest"
-import { resetDb, simulateSeed, buildUser } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
+import { simulateSeed, buildUser } from '../../../testing';
 import { describe } from "../../../testing/helpers"
 
 describe('groupBy', ({ prisma, prismock }) => {

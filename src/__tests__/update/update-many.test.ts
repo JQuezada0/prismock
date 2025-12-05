@@ -1,11 +1,8 @@
-import { PrismaClient } from '@prisma/client';
-
-import { resetDb, simulateSeed, buildUser, formatEntries, generateId } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
-import { it, expect, beforeAll } from "vitest"
+import { simulateSeed, buildUser, formatEntries, generateId } from '../../../testing';
+import { it, expect } from "vitest"
 import { describe } from "../../../testing/helpers"
 
-describe('updateMany', ({ prisma, prismock }) => {
+describe('updateMany', ({ prisma, prismock, beforeAll }) => {
   let realUpdateMany: { count: number };
   let mockUpdateMany: { count: number };
 

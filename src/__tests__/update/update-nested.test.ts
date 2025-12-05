@@ -1,6 +1,5 @@
-import { Blog, Gender, PrismaClient, User } from '@prisma/client';
+import { Blog, Gender, User } from '@prisma/client';
 import {
-  resetDb,
   simulateSeed,
   buildUser,
   buildPost,
@@ -9,7 +8,6 @@ import {
   seededPosts,
   seededBlogs,
 } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
 import { it, expect, beforeAll } from 'vitest'
 import { describe } from "../../../testing/helpers"
 

@@ -1,6 +1,6 @@
-import { afterAll, beforeAll } from "vitest"
+import { beforeAll } from "vitest"
 import { it } from "../../testing/helpers"
-import { resetDb, simulateSeed } from "../../testing"
+import { simulateSeed } from "../../testing"
 import { describe } from "../../testing/helpers"
 
 describe("helpers", ({ prisma, prismock }) => {
