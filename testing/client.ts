@@ -199,7 +199,8 @@ export async function createDatabaseUsingMysql(options: CreateDatabaseUsingPostg
   }))
 
   await options.execWithClient([
-    `DROP SCHEMA public; CREATE SCHEMA public;`,
+    `DROP SCHEMA public;`,
+    `CREATE SCHEMA public;`,
     ...migrationQueries,
   ])
 }
@@ -281,22 +282,41 @@ export async function resetDatabasePostgresql(options: CreateDatabaseOptions) {
 }
 
 export async function resetDatabaseMysql(options: CreateDatabaseOptions) {
-  const mysql = await import("mysql2/promise")
+  // const mysql = await import("mysql2/promise")
   
-  const databaseUrl = useDatabase(process.env.DATABASE_URL!, options.databaseName)
-  const client = await mysql.createConnection({
-    uri: databaseUrl,
-  }) 
+  // const databaseUrl = useDatabase(process.env.DATABASE_URL!, options.databaseName)
+  // const client = await mysql.createConnection({
+  //   uri: databaseUrl,
+  // }) 
 
-  await createDatabaseUsingMysql({
-    databaseName: options.databaseName,
-    execWithSetupClient: async () => {},
-    execWithClient: async (queries) => {
-      for (const query of queries) {
-        await client.query(query)
-      }
+  // await createDatabaseUsingMysql({
+  //   databaseName: options.databaseName,
+  //   execWithSetupClient: async () => {},
+  //   execWithClient: async (queries) => {
+  //     for (const query of queries) {
+  //       await client.query(query)
+  //     }
+  //   },
+  // })
+
+  const databaseUrl = useDatabase(process.env.DATABASE_URL!, options.databaseName)
+
+  const res = spawnSync(`bun prisma migrate reset --force --skip-seed`, {
+    encoding: "utf-8",
+    env: {
+      ...process.env,
+      DATABASE_URL: databaseUrl,
     },
+    stdio: "ignore",
+    cwd: process.cwd(),
+    shell: true,
   })
+
+  if (res.error) {
+    throw res.error
+  }
+
+  return databaseUrl
 }
 
 async function resetDatabaseMongodb(options: CreateDatabaseOptions) {
