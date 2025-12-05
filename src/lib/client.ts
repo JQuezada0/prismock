@@ -308,7 +308,9 @@ export async function getClientClass<PrismaClientType extends new (...args: any[
         })
         const adapter = new PrismaPGlite(pglite)
 
-        const prismaOptions = args[0] ?? {}
+        const inputPrismaOptions = args[0] ?? {}
+
+        const { datasourceUrl: _datasourceUrl, ...prismaOptions } = inputPrismaOptions
 
         super({ ...prismaOptions, adapter })
 

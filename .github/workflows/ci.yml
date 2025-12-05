@@ -181,10 +181,10 @@ jobs:
           rm testing/index.ts && cp testing/index.mongodb.ts testing/index.ts
 
       - name: Push Prisma schema
-        run: bunx prisma db push
+        run: bun prisma db push
 
       - name: Seed database
-        run: bunx prisma db seed
+        run: bun prisma db seed
 
       - name: Run tests
         run: bun run test --reporter=verbose
@@ -242,7 +242,7 @@ jobs:
           rm prisma/schema.prisma && cp testing/mysql/schema.prisma prisma/
 
       - name: Run Prisma migrations
-        run: bunx prisma migrate dev --name init
+        run: bun prisma migrate dev --name init && bun prisma generate
 
       - name: Run tests
         run: bun run test --reporter=verbose
