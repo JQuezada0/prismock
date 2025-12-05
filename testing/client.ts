@@ -42,7 +42,9 @@ export async function createPgLitePrismockClient(options: CreatePrismaClientOpti
   const { PGlite } = await import("@electric-sql/pglite")
   const { PrismaPGlite } = await import("pglite-prisma-adapter")
 
-  const pglite = new PGlite("memory://")
+  const pglite = new PGlite("memory://", {
+    relaxedDurability: true,
+  })
   const adapter = new PrismaPGlite(pglite)
 
   const client = new PrismaClient({

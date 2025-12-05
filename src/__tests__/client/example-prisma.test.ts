@@ -6,6 +6,7 @@ import { resetDb, simulateSeed } from '../../../testing';
 describe('Example', ({ prisma }) => {
   describe('Without mock', () => {
     beforeAll(async () => {
+      await resetDb();
       await simulateSeed(prisma);
     });
 
