@@ -332,7 +332,7 @@ export async function resetDatabase(options: CreateDatabaseOptions) {
   throw new Error(`Unsupported provider: ${provider}`)
 }
 
-function useDatabase(connectionUri: string, newDatabase: string): string {
+export function useDatabase(connectionUri: string, newDatabase: string): string {
   const url = new URL(connectionUri)
   url.pathname = `/${newDatabase}`
   return url.toString()

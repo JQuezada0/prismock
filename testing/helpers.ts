@@ -125,7 +125,12 @@ export const it = vitestIt.extend<TestContextExtended>({
   },
 })
 
-type DescribeInnerCallback = (test: TestAPI & { prisma: PrismaClient; prismock: PrismockClientType; reset: () => Promise<void> }) => Promise<void> | void
+type DescribeInnerCallback = (test: TestAPI & { 
+  prisma: PrismaClient;
+  prismock: PrismockClientType
+  reset: () => Promise<void>
+  databaseUrl: string
+}) => Promise<void> | void
 
 export function describeInner(name: string, callback: DescribeInnerCallback) {
   vitestDescribe<{ prisma: PrismaClient; prismock: PrismockClientType }>(name, async (testApi) => {
@@ -138,7 +143,8 @@ export function describeInner(name: string, callback: DescribeInnerCallback) {
       reset: async () => {
         await TestClients.resetDatabase({ databaseName })
         await fileLevelClients.prismock.reset()
-      }
+      },
+      databaseUrl: TestClients.useDatabase(process.env.DATABASE_URL!, databaseName),
     }, testApi)
 
     return callback(augmentedTestApi)

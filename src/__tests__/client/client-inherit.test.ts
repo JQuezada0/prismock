@@ -27,7 +27,7 @@ class PrismaService extends PrismaClient {
   }
 }
 
-describe('client', () => {
+describe('client', ({ databaseUrl }) => {
   let prismock: PrismockService;
   let customPrismock: CustomPrismockService;
   let prisma: PrismaService;
@@ -35,11 +35,12 @@ describe('client', () => {
   async function reset() {
     await resetDb();
 
-    prisma = new PrismaService();
+    prisma = new PrismaService({ datasourceUrl: databaseUrl });
     prismock = new PrismockService();
     customPrismock = new CustomPrismockService();
     await prismock.reset()
     await customPrismock.reset()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
     await simulateSeed(customPrismock);
   }
