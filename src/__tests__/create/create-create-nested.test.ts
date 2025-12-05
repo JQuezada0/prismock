@@ -1,9 +1,9 @@
 import type { PrismaClient } from "@prisma/client"
 import { Gender } from "@prisma/client"
-import { describe, expect } from "vitest"
+import { describe } from "vitest"
 import { it } from "../../../testing/helpers"
 import { buildUser, formatEntry, simulateSeed } from "../../../testing"
-import { PrismockClientType } from "../../lib/client"
+import type { PrismockClientType } from "../../lib/client"
 
 describe("create", () => {
   const seedData = async ({ prisma, prismock }: { prisma: PrismaClient; prismock: PrismockClientType }) => {
@@ -58,7 +58,7 @@ describe("create", () => {
   }
 
   describe("createMany (nested)", () => {
-    it("Should return created user", async ({ isolated }) => {
+    it("Should return created user", async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         const { realUser, mockUser } = await seedData({ prisma, prismock })
         const expected = buildUser(4, {})
@@ -68,7 +68,7 @@ describe("create", () => {
       })
     })
 
-    it("Should create nested post", async ({ isolated }) => {
+    it("Should create nested post", async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         const { realUser, mockUser, realBlog, mockBlog } = await seedData({ prisma, prismock })
 
@@ -160,7 +160,7 @@ describe("create", () => {
       }
     }
 
-    it("Should return created user", async ({ isolated }) => {
+    it("Should return created user", async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         const { realUser, mockUser } = await seedData({ prisma, prismock })
 
@@ -171,7 +171,7 @@ describe("create", () => {
       })
     })
 
-    it("Should create nested post", async ({ isolated }) => {
+    it("Should create nested post", async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         const { realUser, mockUser, mockBlog, realBlog } = await seedData({ prisma, prismock })
 
@@ -252,7 +252,7 @@ describe("create", () => {
       await prismock.profile.create({ data: userToCreate })
     }
 
-    it("Should create given user", async ({ isolated }) => {
+    it("Should create given user", async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         const realUser = await prisma.user.findFirst({
           where: { email: userToCreate.user.create.email },
@@ -274,7 +274,7 @@ describe("create", () => {
       })
     })
 
-    it("Should create profile with given user", async ({ isolated }) => {
+    it("Should create profile with given user", async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         await seedProfiles({ prisma, prismock })
         const realUser = await prisma.user.findFirst({ where: { email: userToCreate.user.create.email } })

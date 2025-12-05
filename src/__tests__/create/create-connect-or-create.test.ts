@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client"
+import type { PrismaClient } from "@prisma/client"
 import { describe } from "vitest"
 import { it } from "../../../testing/helpers"
 import { seededBlogs, seededUsers, simulateSeed } from "../../../testing"

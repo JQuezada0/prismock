@@ -44,6 +44,7 @@ export async function createPgLitePrismockClient(options: CreatePrismaClientOpti
 
   const pglite = new PGlite("memory://", {
     relaxedDurability: true,
+    initialMemory: 1024 * 1024 * 1024, // 1GB
   })
   const adapter = new PrismaPGlite(pglite)
 

@@ -2,10 +2,10 @@ import { Prisma } from '@prisma/client';
 
 import { seededBlogs, seededPosts, seededUsers, simulateSeed } from '../../../testing';
 import { fetchProvider } from '../../lib/prismock';
-import { it, expect, beforeAll } from "vitest"
+import { it } from "vitest"
 import { describe } from "../../../testing/helpers"
 
-describe('client', ({ prisma, prismock, reset }) => {
+describe('client', ({ prisma, prismock, reset, beforeAll }) => {
   let provider: string;
 
   async function reSeed() {
@@ -20,17 +20,17 @@ describe('client', ({ prisma, prismock, reset }) => {
     await reSeed();
   });
 
-  it('Should handle $connect', async () => {
+  it('Should handle $connect', async ({ expect }) => {
     await expect(prisma.$connect()).resolves.not.toThrow();
     await expect(prismock.$connect()).resolves.not.toThrow();
   });
 
-  it('Should handle $disconnect', async () => {
+  it('Should handle $disconnect', async ({ expect }) => {
     await expect(prisma.$disconnect()).resolves.not.toThrow();
     await expect(prismock.$disconnect()).resolves.not.toThrow();
   });
 
-  it('Should handle $use', async () => {
+  it('Should handle $use', async ({ expect }) => {
     prisma.$use(async (params, next) => {
       const result = await next(params);
       return result;
@@ -48,7 +48,7 @@ describe('client', ({ prisma, prismock, reset }) => {
     expect(mockUsers.length).toBe(3);
   });
 
-  it('Should handle $extends', async () => {
+  it('Should handle $extends', async ({ expect }) => {
     prisma.$extends({});
     prismock.$extends({});
 
@@ -60,7 +60,7 @@ describe('client', ({ prisma, prismock, reset }) => {
   });
 
   /* SQL only */
-  it('Should handle executeRaw', async () => {
+  it('Should handle executeRaw', async ({ expect }) => {
     if (provider === 'postgresql') {
       await expect(
         prisma.$executeRaw(Prisma.sql`DELETE FROM public."User" where email = 'does-not-exist@gmail.com'`),
@@ -71,7 +71,7 @@ describe('client', ({ prisma, prismock, reset }) => {
     }
   });
 
-  it('Should handle executeRawUnsafe', async () => {
+  it('Should handle executeRawUnsafe', async ({ expect }) => {
     if (provider === 'postgresql') {
       await expect(
         prisma.$executeRawUnsafe(`DELETE FROM public."User" where email = 'does-not-exist@gmail.com'`),
@@ -82,7 +82,7 @@ describe('client', ({ prisma, prismock, reset }) => {
     }
   });
 
-  it('Should handle $queryRaw', async () => {
+  it('Should handle $queryRaw', async ({ expect }) => {
     if (provider === 'postgresql') {
       await expect(
         prisma.$queryRaw(Prisma.sql`SELECT * from public."User" where email = 'does-not-exist@gmail.com'`),
@@ -93,7 +93,7 @@ describe('client', ({ prisma, prismock, reset }) => {
     }
   });
 
-  it('Should handle $queryRawUnsafe', async () => {
+  it('Should handle $queryRawUnsafe', async ({ expect }) => {
     if (provider === 'postgresql') {
       await expect(
         prisma.$queryRawUnsafe(`SELECT * from public."User" where email = 'does-not-exist@gmail.com'`),
@@ -104,7 +104,7 @@ describe('client', ({ prisma, prismock, reset }) => {
     }
   });
 
-  it('Should handle $transaction', async () => {
+  it('Should handle $transaction', async ({ expect }) => {
     if (provider === 'postgresql') {
       await reSeed();
 

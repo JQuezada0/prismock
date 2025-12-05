@@ -251,6 +251,7 @@ export async function getClient<
 
     const pglite = new PGlite("memory://", {
       relaxedDurability: true,
+      initialMemory: 1024 * 1024 * 1024, // 1GB
     })
     const adapter = new PrismaPGlite(pglite)
 
@@ -305,6 +306,7 @@ export async function getClientClass<PrismaClientType extends new (...args: any[
       constructor(...args: any[]) {
         const pglite = new PGlite("memory://", {
           relaxedDurability: true,
+          initialMemory: 1024 * 1024 * 1024, // 1GB
         })
         const adapter = new PrismaPGlite(pglite)
 
