@@ -199,7 +199,7 @@ export async function createDatabaseUsingMysql(options: CreateDatabaseUsingPostg
   }))
 
   await options.execWithClient([
-    `DROP SCHEMA public CASCADE; CREATE SCHEMA public;`,
+    `DROP SCHEMA public; CREATE SCHEMA public;`,
     ...migrationQueries,
   ])
 }
