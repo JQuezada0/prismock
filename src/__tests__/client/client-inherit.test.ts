@@ -1,8 +1,7 @@
 import { PrismaClient } from '@prisma/client';
-import { resetDb, simulateSeed } from '../../../testing';
-import { Prismock, createPrismock, createPrismockClass } from '../../lib/client';
-import { Prisma as CustomPrisma } from '../../../node_modules/.prisma-custom/client';
-import { it, expect, beforeAll } from "vitest"
+import { simulateSeed } from '../../../testing';
+import { createPrismockClass } from '../../lib/client';
+import { it } from "vitest"
 import { describe } from "../../../testing/helpers"
 
 const CustomPrismockClient = await createPrismockClass();
@@ -27,7 +26,7 @@ class PrismaService extends PrismaClient {
   }
 }
 
-describe('client', ({ databaseUrl }) => {
+describe('client', ({ databaseUrl, beforeAll }) => {
   let prismock: PrismockService;
   let customPrismock: CustomPrismockService;
   let prisma: PrismaService;
@@ -47,7 +46,7 @@ describe('client', ({ databaseUrl }) => {
     await reset();
   });
 
-  it('Should return first article from custom method', async () => {
+  it('Should return first article from custom method', async ({ expect }) => {
     const expected = [{ title: 'title1' }];
 
     const realPosts = await prisma.findLastPost();

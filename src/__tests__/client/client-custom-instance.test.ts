@@ -5,10 +5,11 @@ import { fetchProvider } from '../../lib/prismock';
 import { it, expect, beforeAll } from "vitest"
 import { describe } from "../../../testing/helpers"
 
-describe('client', ({ prisma, prismock }) => {
+describe('client', ({ prisma, prismock, reset }) => {
   let provider: string;
 
-  async function reset() {
+  async function reSeed() {
+    await reset()
     await simulateSeed(prisma);
     await simulateSeed(prismock);
 
@@ -16,7 +17,7 @@ describe('client', ({ prisma, prismock }) => {
   }
 
   beforeAll(async () => {
-    await reset();
+    await reSeed();
   });
 
   it('Should handle $connect', async () => {
@@ -105,7 +106,7 @@ describe('client', ({ prisma, prismock }) => {
 
   it('Should handle $transaction', async () => {
     if (provider === 'postgresql') {
-      await reset();
+      await reSeed();
 
       await expect(prisma.$transaction([prisma.post.deleteMany()])).resolves.toEqual([{ count: seededPosts.length }]);
       await expect(prismock.$transaction([prismock.post.deleteMany()])).resolves.toEqual([{ count: seededPosts.length }]);

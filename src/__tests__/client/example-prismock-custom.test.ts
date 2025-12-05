@@ -1,25 +1,29 @@
 import { buildUser, formatEntries, formatEntry } from '../../../testing';
-import { describe, it, expect, beforeAll, vi } from "vitest"
-import { createRequire } from "node:module";
-
-const require = createRequire(import.meta.url)
+import { it, expect, vi } from "vitest"
+import { describe } from "../../../testing/helpers"
 
 // This path existing depends on <rootDir>/testing/global-setup.ts running properly.
 vi.mock('@prisma-custom/client', async () => {
   console.log(`Mocking PrismaClient from`);
   const actual = await vi.importActual<typeof import('.prisma-custom/client')>('@prisma-custom/client');
+
   return {
     ...actual,
-    PrismaClient: await (await vi.importActual<typeof import('../../lib/client')>('../../lib/client')).createPrismockClass(actual.Prisma),
+    PrismaClient: await (await vi.importActual<typeof import('../../lib/client')>('../../lib/client')).getClientClass({
+      prismaModule: actual.Prisma,
+      PrismaClient: actual.PrismaClient,
+      schemaPath: "./prisma/schema.prisma",
+      usePgLite: process.env.PRISMOCK_USE_PG_LITE ? true : false,
+    }),
   };
 });
 
 describe('Example', () => {
-  describe('With mock', () => {
+  describe('With mock', ({ databaseUrl }) => {
     it('Should use prismock instead of prisma', async () => {
       // @ts-expect-error - this is an aliased path
       const { PrismaClient } = await import('@prisma-custom/client');
-      const prisma = new PrismaClient();
+      const prisma = new PrismaClient({ datasourceUrl: databaseUrl });
 
       await prisma.$connect()
 

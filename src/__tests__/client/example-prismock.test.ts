@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest'
+import { it, expect, vi, beforeAll } from 'vitest'
 import * as Client from "../../lib/client"
+import { describe } from "../../../testing/helpers"
 
 vi.doMock("@prisma/client", async () => {
   const actualPrisma = await vi.importActual<typeof import("@prisma/client")>("@prisma/client");
@@ -17,20 +18,16 @@ vi.doMock("@prisma/client", async () => {
   };
 })
 
-describe('Example', () => {
-  let provider: string;
+describe('Example', async () => {
+  const { fetchProvider } = await import('../../lib/prismock');
+  const provider: string = await fetchProvider();
 
-  beforeAll(async () => {
-    const { fetchProvider } = await import('../../lib/prismock');
-    provider = await fetchProvider();
-  });
-
-  describe('With mock', () => {
+  describe('With mock', ({ databaseUrl }) => {
     it('Should use prismock instead of prisma', async () => {
       const { PrismaClient } = await import('@prisma/client')
       const { buildUser, formatEntries, formatEntry } = await import('../../../testing');
 
-      const prisma = new PrismaClient();
+      const prisma = new PrismaClient({ datasourceUrl: databaseUrl });
 
       await prisma.$connect()
 

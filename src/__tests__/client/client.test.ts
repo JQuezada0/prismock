@@ -1,8 +1,7 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { seededBlogs, seededPosts, seededUsers, simulateSeed } from '../../../testing';
-import { createPrismock, PrismockClientType, type Prismock } from '../../lib/client';
-import { fetchProvider, getProvider } from '../../lib/prismock';
+import { fetchProvider } from '../../lib/prismock';
 import { it, expect, beforeAll } from "vitest"
 import { describe } from "../../../testing/helpers"
 
