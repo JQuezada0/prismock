@@ -1,22 +1,15 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
-import { resetDb, seededBlogs, seededPosts, seededUsers, simulateSeed } from '../../../testing';
-import { createPrismock, type PrismockClientType } from '../../lib/client';
+import { seededBlogs, seededPosts, seededUsers, simulateSeed } from '../../../testing';
 import { fetchProvider } from '../../lib/prismock';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('client', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('client', ({ prisma, prismock }) => {
   let provider: string;
 
   async function reset() {
-    await resetDb();
-
-    prisma = new PrismaClient();
-
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     provider = await fetchProvider();

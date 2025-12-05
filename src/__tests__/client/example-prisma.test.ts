@@ -11,7 +11,7 @@ describe('Example', ({ prisma }) => {
     });
 
     it('Should throw as user email is taken', async () => {
-      return expect(prisma.user.create({ data: { email: 'user1@company.com', password: 'password' } })).rejects.toThrow();
+      await expect(async () => prisma.user.create({ data: { email: 'user1@company.com', password: 'password' } })).rejects.toThrow();
     });
   });
 });
