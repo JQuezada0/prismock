@@ -10,7 +10,7 @@ describe('client (reset)', () => {
     const users = await prismock.user.findMany();
     expect(users.length > 0).toBeTruthy();
 
-    prismock.reset();
+    await prismock.reset();
 
     const usersAfterReset = await prismock.user.findMany();
     expect(usersAfterReset.length > 0).not.toBeTruthy();
@@ -25,7 +25,7 @@ describe('client (reset)', () => {
 
     const userService = prismock.user;
 
-    prismock.reset();
+    await prismock.reset();
 
     const usersAfterReset = await userService.findMany();
     expect(usersAfterReset.length > 0).not.toBeTruthy();

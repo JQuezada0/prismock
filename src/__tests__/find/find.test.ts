@@ -15,13 +15,11 @@ import {
 } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
 import { fetchProvider } from '../../lib/prismock';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('find', async () => {
+describe('find', async ({ prisma, prismock }) => {
   let provider: string = await fetchProvider();
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
   let realAuthor: User;
   let mockAuthor: User;
 
@@ -29,10 +27,7 @@ describe('find', async () => {
   let mockBlog: Blog;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     provider = await fetchProvider();

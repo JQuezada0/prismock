@@ -12,12 +12,10 @@ import {
   seededBlogs,
 } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('updateMany (nested/multiple)', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('updateMany (nested/multiple)', ({ prisma, prismock }) => {
   let realUser: User;
   let mockUser: User;
 
@@ -36,11 +34,12 @@ describe('updateMany (nested/multiple)', () => {
   const date = new Date();
 
   beforeAll(async () => {
-    await resetDb();
+    // await resetDb();
 
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    // prisma = new PrismaClient();
+    // prismock = await createPrismock()
     await simulateSeed(prismock);
+    await simulateSeed(prisma);
   });
 
   beforeAll(async () => {

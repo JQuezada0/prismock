@@ -1,12 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { resetDb, simulateSeed } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('deleteMany', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('deleteMany', ({ prisma, prismock }) => {
   const users = {
     user1: { email: 'user-delete-1@company.com', password: 'password', warnings: 0 },
     user2: { email: 'user-delete-2@company.com', password: 'password', warnings: 99 },
@@ -14,10 +12,7 @@ describe('deleteMany', () => {
   };
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     const user1 = await prisma.user.create({ data: users.user1 });

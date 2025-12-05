@@ -1,4 +1,4 @@
-import { PrismaClient, Service } from '@prisma/client';
+import { PrismaClient, Service, type User } from '@prisma/client';
 import { version as clientVersion } from '@prisma/client/package.json';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
@@ -15,19 +15,14 @@ import {
 import { createPrismock, PrismockClientType } from '../../lib/client';
 import { Item } from '../../lib/delegate';
 import { fetchProvider } from '../../lib/prismock';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('update', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('update', ({ prisma, prismock }) => {
   let provider: string;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     provider = await fetchProvider();
@@ -57,7 +52,7 @@ describe('update', () => {
 
     it('Should update stored data', async () => {
       const expectedStore = [buildUser(1, { warnings: 99 }), seededUsers[1], seededUsers[2]];
-      const mockStored = (await prismock.getData()).user.sort((a, b) => a.id.toString().localeCompare(b.id.toString()));
+      const mockStored = ((await prismock.getData()).user as User[]).sort((a, b) => a.id.toString().localeCompare(b.id.toString()));
       const stored = (await prisma.user.findMany()).sort((a, b) => a.id.toString().localeCompare(b.id.toString()));
 
       expect(formatEntries(stored)).toEqual(formatEntries(expectedStore));
@@ -184,8 +179,8 @@ describe('update', () => {
           },
         });
 
-        expect(realResult.value).toEqual(expectedNewValue);
-        expect(mockResult.value).toEqual(expectedNewValue);
+        expect(realResult?.value).toEqual(expectedNewValue);
+        expect(mockResult?.value).toEqual(expectedNewValue);
       } else {
         console.log('[SKIPPED] compound ID not supported on MongoDB');
       }
@@ -213,8 +208,8 @@ describe('update', () => {
           },
         });
 
-        expect(realResult.value).toEqual(untouchedReaction.value);
-        expect(mockResult.value).toEqual(untouchedReaction.value);
+        expect(realResult?.value).toEqual(untouchedReaction.value);
+        expect(mockResult?.value).toEqual(untouchedReaction.value);
       } else {
         console.log('[SKIPPED] compound ID not supported on MongoDB');
       }

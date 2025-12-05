@@ -2,12 +2,10 @@ import { PrismaClient, User } from '@prisma/client';
 
 import { resetDb, simulateSeed, seededPosts, seededUsers, formatEntries, formatEntry } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('update (connect)', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('update (connect)', ({ prisma, prismock }) => {
   let realUser: User;
   let mockUser: User;
 
@@ -15,10 +13,7 @@ describe('update (connect)', () => {
   let mockAuthor: User;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     realAuthor = (await prisma.user.findUnique({ where: { email: 'user1@company.com' } }))!;

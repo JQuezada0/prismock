@@ -2,7 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import { resetDb, simulateSeed } from '../../../testing';
 import { Prismock, createPrismock, createPrismockClass } from '../../lib/client';
 import { Prisma as CustomPrisma } from '../../../node_modules/.prisma-custom/client';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
 const CustomPrismockClient = await createPrismockClass();
 

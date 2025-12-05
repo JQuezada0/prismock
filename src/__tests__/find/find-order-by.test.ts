@@ -2,20 +2,16 @@ import { PrismaClient } from '@prisma/client';
 import { resetDb, simulateSeed } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
 import { fetchProvider } from '../../lib/prismock';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
 const now = new Date().getTime();
 
-describe('find', () => {
+describe('find-order-by', ({ prisma, prismock }) => {
   let provider: string;
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     const users = [

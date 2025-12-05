@@ -1,16 +1,15 @@
-import { PrismaClient } from '@prisma/client';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-import { resetDb } from '../../../testing';
+import { resetDb, simulateSeed } from '../../../testing';
 
-describe('Example', () => {
+describe('Example', ({ prisma }) => {
   describe('Without mock', () => {
     beforeAll(async () => {
-      await resetDb();
+      await simulateSeed(prisma);
     });
 
     it('Should throw as user email is taken', async () => {
-      const prisma = new PrismaClient();
       return expect(prisma.user.create({ data: { email: 'user1@company.com', password: 'password' } })).rejects.toThrow();
     });
   });

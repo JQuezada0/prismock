@@ -11,12 +11,10 @@ import {
   seededBlogs,
 } from '../../../testing';
 import { createPrismock, PrismockClientType } from '../../lib/client';
-import { describe, it, expect, vi, beforeAll } from 'vitest'
+import { it, expect, beforeAll } from 'vitest'
+import { describe } from "../../../testing/helpers"
 
-describe('update (nested)', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('update (nested)', ({ prisma, prismock }) => {
   let realUser: User;
   let mockUser: User;
 
@@ -27,12 +25,9 @@ describe('update (nested)', () => {
   let mockBlog: Blog;
 
   const date = new Date();
-
+  
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
   });
 

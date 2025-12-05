@@ -1,21 +1,14 @@
 import { defineConfig } from 'vitest/config'
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import * as os from 'os';
 
 const prismaCustomClientPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'node_modules', '.prisma-custom', 'client')
 
 export default defineConfig(async function () {
-  const provider = (() => {
-    if (process.env.DATABASE_URL?.includes('mongodb')) {
-      return "mongodb"
-    }
+  const processorCount = os.cpus().length
 
-    if (process.env.DATABASE_URL?.includes("mysql")) {
-      return "mysql"
-    }
-
-    return "postgresql"
-  })()
+  console.log("Setting max workers to:", processorCount);
 
   return {
     test: {
@@ -26,10 +19,10 @@ export default defineConfig(async function () {
       alias: {
         '@prisma-custom/client': prismaCustomClientPath,
       },
-      maxWorkers: provider === "postgresql" ? 4 : 1,
-      sequence: {
-        concurrent: provider === "postgresql",
-      },
+      maxWorkers: processorCount,
+      // sequence: {
+      //   concurrent: provider === "postgresql",
+      // },
     },
     resolve: {
       alias: {
@@ -38,3 +31,15 @@ export default defineConfig(async function () {
     },
   }
 })
+
+function getConnectorName() {
+  if (process.env.DATABASE_URL?.includes('mongodb')) {
+    return "mongodb"
+  }
+
+  if (process.env.DATABASE_URL?.includes("mysql")) {
+    return "mysql"
+  }
+
+  return "postgresql"
+}

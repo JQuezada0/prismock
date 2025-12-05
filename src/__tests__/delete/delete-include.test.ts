@@ -1,13 +1,10 @@
-import { Blog, Post, PrismaClient } from '@prisma/client';
-import { resetDb, seededBlogs, seededPosts, simulateSeed } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
+import { Blog, Post } from '@prisma/client';
+import { seededBlogs, seededPosts, simulateSeed } from '../../../testing';
 import { omit } from '../../lib/helpers';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('delete (includes)', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('delete (includes)', ({ prisma, prismock }) => {
   let realDelete: Blog & { posts: Post[] };
   let mockDelete: Blog & { posts: Post[] };
 
@@ -24,10 +21,7 @@ describe('delete (includes)', () => {
   let mockPost2: Post;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     realBlog1 = (await prisma.blog.findUnique({ where: { title: seededBlogs[0].title } }))!;

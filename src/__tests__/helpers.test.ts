@@ -1,10 +1,12 @@
-import { afterAll, beforeAll, describe } from "vitest"
+import { afterAll, beforeAll } from "vitest"
 import { it } from "../../testing/helpers"
-import { resetDb } from "../../testing"
+import { resetDb, simulateSeed } from "../../testing"
+import { describe } from "../../testing/helpers"
 
-describe("helpers", () => {
+describe("helpers", ({ prisma, prismock }) => {
   beforeAll(async () => {
-    await resetDb()
+    await simulateSeed(prisma)
+    await simulateSeed(prismock)
   })
 
   it("hello world 1", async ({ prisma, prismock, isolated }) => {

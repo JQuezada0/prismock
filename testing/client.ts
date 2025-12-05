@@ -6,8 +6,6 @@ import { generateDMMF } from "../src/lib/dmmf"
 import { spawnSync } from "child_process"
 import { fetchProvider } from "../src/lib/prismock"
 
-const DATABASE_LOCK_ID = 12345
-
 export type CreatePrismaClientOptionsInput = {
   databaseUrl?: string | null | undefined
   schemaPath?: string | null | undefined
@@ -47,30 +45,6 @@ export async function createPgLitePrismockClient(options: CreatePrismaClientOpti
   const pglite = new PGlite("memory://")
   const adapter = new PrismaPGlite(pglite)
 
-  // const schemaPathDir = path.dirname(schemaPath)
-  // const migrationsPath = path.join(schemaPathDir, "migrations")
-  // const migrationsDirContents = await fs.promises.readdir(migrationsPath, {
-  //   withFileTypes: true
-  // })
-
-  // const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory())
-
-  // const connection = await adapter.connect()
-
-  // await connection.executeScript(`
-  //   DROP SCHEMA public CASCADE;
-  //   CREATE SCHEMA public;`
-  // )
-
-  // for (const migration of migrationsDir) {
-  //   const migrationPath = path.join(migrationsPath, migration.name, "migration.sql")
-  //   const migrationContent = await fs.promises.readFile(migrationPath, "utf8")
-
-  //   await connection.executeScript(migrationContent)
-  // }
-
-  // console.log("Migrations applied")
-
   const client = new PrismaClient({
     adapter,
   })
@@ -83,7 +57,10 @@ export async function createPgLitePrismockClient(options: CreatePrismaClientOpti
     prismaClient: client,
   })
 
-  return Object.assign(client, prismockData)
+  return {
+    prismock: Object.assign(client, prismockData),
+    pglite,
+  }
 }
 
 export async function createPrismockClient(options: CreatePrismaClientOptionsInput = {}) {
@@ -165,44 +142,113 @@ async function createDatabaseMongodb(options: CreateDatabaseOptions) {
   return databaseUrl
 }
 
+type CreateDatabaseUsingPostgresOptions = {
+  databaseName: string
+  execWithSetupClient: (query: string[]) => Promise<void>
+  execWithClient: (query: string[]) => Promise<void>
+}
+
+export async function createDatabaseUsingPostgres(options: CreateDatabaseUsingPostgresOptions) {
+  const schemaPathDir = path.dirname("./prisma/schema.prisma")
+  const migrationsPath = path.join(schemaPathDir, "migrations")
+  const migrationsDirContents = fs.readdirSync(migrationsPath, {
+    withFileTypes: true
+  })
+
+  const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory())
+
+  await options.execWithSetupClient([
+    `DROP DATABASE IF EXISTS ${options.databaseName} WITH (FORCE);`,
+    `CREATE DATABASE ${options.databaseName}`
+  ])
+
+  const migrationQueries = await Promise.all(migrationsDir.map(async (migration) => {
+    const migrationPath = path.join(migrationsPath, migration.name, "migration.sql")
+    const migrationContent = await fs.promises.readFile(migrationPath, "utf8")
+
+    const unloggedSql = migrationContent.replace(/CREATE TABLE/gi, 'CREATE UNLOGGED TABLE');
+
+    return unloggedSql
+  }))
+
+  await options.execWithClient([
+    `DROP SCHEMA public CASCADE; CREATE SCHEMA public;`,
+    ...migrationQueries,
+  ])
+}
+
 export async function createDatabasePostgresql(options: CreateDatabaseOptions) {
   const pg = await import("pg")
 
   const connectionUri = useDatabase(process.env.DATABASE_URL!, "postgres")
+  const databaseUrl = useDatabase(process.env.DATABASE_URL!, options.databaseName)
 
-  const client = new pg.Client({
+  const setupClient = new pg.Client({
     connectionString: connectionUri,
   })
 
-  await client.connect()
+  const client = new pg.Client({
+    connectionString: databaseUrl,
+  })
+
+  await setupClient.connect()
 
   try {
-    await client.query(`SELECT pg_advisory_lock(${DATABASE_LOCK_ID});`)
+    await createDatabaseUsingPostgres({
+      databaseName: options.databaseName,
+      execWithSetupClient: async (queries) => {
+        for (const query of queries) {
+          await setupClient.query(query)
+        }
   
-    await client.query(`DROP DATABASE IF EXISTS ${options.databaseName} WITH (FORCE);`)
-    await client.query(`CREATE DATABASE ${options.databaseName}`)
+        await setupClient.end()
+        await client.connect()
+      },
+      execWithClient: async (queries) => {
+        for (const query of queries) {
+          await client.query(query)
+        }
   
-    await client.query(`SELECT pg_advisory_unlock(${DATABASE_LOCK_ID});`)
+        await client.end()
+      }
+    })
   } finally {
+    await setupClient.end()
     await client.end()
   }
 
-  const databaseUrl = useDatabase(process.env.DATABASE_URL!, options.databaseName)
+  return databaseUrl
+}
 
-  const res = spawnSync(`bun prisma migrate reset --force --skip-seed`, {
-    encoding: "utf-8",
-    env: {
-      ...process.env,
-      DATABASE_URL: databaseUrl,
-    },
-    stdio: "ignore",
-    cwd: process.cwd(),
-    shell: true,
+export async function resetDatabasePostgresql(options: CreateDatabaseOptions) {
+  const pg = await import("pg")
+
+  const databaseUrl = useDatabase(process.env.DATABASE_URL!, options.databaseName)
+  const client = new pg.Client({
+    connectionString: databaseUrl,
   })
 
-  if (res.error) {
-    throw res.error
+  const schemaPathDir = path.dirname("./prisma/schema.prisma")
+  const migrationsPath = path.join(schemaPathDir, "migrations")
+  const migrationsDirContents = fs.readdirSync(migrationsPath, {
+    withFileTypes: true
+  })
+
+  const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory())
+
+  await client.connect()
+  await client.query(`DROP SCHEMA public CASCADE; CREATE SCHEMA public;`)
+
+  for (const migration of migrationsDir) {
+    const migrationPath = path.join(migrationsPath, migration.name, "migration.sql")
+    const migrationContent = await fs.promises.readFile(migrationPath, "utf8")
+
+    const unloggedSql = migrationContent.replace(/CREATE TABLE/gi, 'CREATE UNLOGGED TABLE');
+
+    await client.query(unloggedSql)
   }
+
+  await client.end()
 
   return databaseUrl
 }
@@ -254,9 +300,7 @@ async function cleanupDatabasePostgresql(options: CreateDatabaseOptions) {
   await client.connect()
 
   try {
-    await client.query(`SELECT pg_advisory_lock(${DATABASE_LOCK_ID});`)
     await client.query(`DROP DATABASE IF EXISTS ${options.databaseName} WITH (FORCE);`)
-    await client.query(`SELECT pg_advisory_unlock(${DATABASE_LOCK_ID});`)
   } finally {
     await client.end()
   }
@@ -271,6 +315,16 @@ export async function cleanupDatabase(options: CreateDatabaseOptions) {
     return cleanupDatabaseMongodb(options)
   } else if (provider === "mysql") {
     return cleanupDatabaseMysql(options)
+  }
+
+  throw new Error(`Unsupported provider: ${provider}`)
+}
+
+export async function resetDatabase(options: CreateDatabaseOptions) {
+  const provider = await fetchProvider()
+
+  if (provider === "postgresql") {
+    return resetDatabasePostgresql(options)
   }
 
   throw new Error(`Unsupported provider: ${provider}`)
