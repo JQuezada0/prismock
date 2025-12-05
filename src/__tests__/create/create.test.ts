@@ -11,10 +11,10 @@ import {
   seededUsers,
   simulateSeed,
 } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
+import { PrismockClientType } from '../../lib/client';
 import { isCuid } from '@paralleldrive/cuid2';
-import { describe, expect, beforeAll } from "vitest"
-import { fileClientsName, getFileLevelClients, it } from "../../../testing/helpers"
+import { describe } from "vitest"
+import { it } from "../../../testing/helpers"
 
 describe('create', () => {
   const data = {
@@ -60,7 +60,7 @@ describe('create', () => {
   }
 
   describe('create', () => {
-    it('Should create (with default value)', async ({ isolated }) => {
+    it('Should create (with default value)', async ({ isolated, expect }) => {
       await isolated(async ({  prisma, prismock }) => {
         const { mockUsers, realUsers } = await seedData({ prismock, prisma })
 
@@ -71,7 +71,7 @@ describe('create', () => {
       })
     });
 
-    it('Should create (with default date value)', async ({ isolated }) => {
+    it('Should create (with default date value)', async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         await seedData({ prismock, prisma })
 
@@ -96,7 +96,7 @@ describe('create', () => {
       })
     });
 
-    it('Should create with increment', async ({ isolated }) => {
+    it('Should create with increment', async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         const { mockUsers, realUsers } = await seedData({ prismock, prisma })
         
@@ -108,7 +108,7 @@ describe('create', () => {
 
     });
 
-    it('Should create with default cuid value', async ({ isolated }) => {
+    it('Should create with default cuid value', async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         const realBlog3 = await prisma.blog.create({ data: { title: 'blog-3', category: '3' } });
         const mockBlog3 = await prismock.blog.create({ data: { title: 'blog-3', category: '3' } });
@@ -118,7 +118,7 @@ describe('create', () => {
       })
     });
 
-    it('Should creat with default string value', async ({ isolated }) => {
+    it('Should creat with default string value', async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         const { mockUsers, realUsers } = await seedData({ prismock, prisma })
 
@@ -130,7 +130,7 @@ describe('create', () => {
       })
     });
 
-    it('Should create with default int value', async ({ isolated }) => {
+    it('Should create with default int value', async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         const { mockUsers, realUsers } = await seedData({ prismock, prisma })
 
@@ -142,7 +142,7 @@ describe('create', () => {
       })
     });
 
-    it('Should create with default value if receive undefined', async ({ isolated }) => {
+    it('Should create with default value if receive undefined', async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         const { mockUsers, realUsers } = await seedData({ prismock, prisma })
 
@@ -159,7 +159,7 @@ describe('create', () => {
       
     });
 
-    it('Should create without default value if already set', async ({ isolated }) => {
+    it('Should create without default value if already set', async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         const { mockUsers, realUsers } = await seedData({ prismock, prisma })
 
@@ -179,7 +179,7 @@ describe('create', () => {
       
     });
 
-    it('Should create and return item with nested select', async ({ isolated }) => {
+    it('Should create and return item with nested select', async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         const { mockUsers, realUsers, data } = await seedData({ prismock, prisma })
 
@@ -234,7 +234,7 @@ describe('create', () => {
       }
     }
 
-    it('Should create', async ({ isolated }) => {
+    it('Should create', async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         await seedDataCreateMany({ prismock, prisma })
 
@@ -278,7 +278,7 @@ describe('create', () => {
       
     });
 
-    it('Should return count', async ({ isolated }) => {
+    it('Should return count', async ({ isolated, expect }) => {
       await isolated(async ({ prisma, prismock }) => {
         const { mockResponse, realResponse } = await seedDataCreateMany({ prismock, prisma })
 

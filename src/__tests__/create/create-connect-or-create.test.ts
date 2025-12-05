@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client"
-import { describe, expect, beforeAll } from "vitest"
+import { describe } from "vitest"
 import { it } from "../../../testing/helpers"
-import { resetDb, seededBlogs, seededUsers, simulateSeed } from "../../../testing"
+import { seededBlogs, seededUsers, simulateSeed } from "../../../testing"
 import type { PrismockClientType } from "../../lib/client"
 
 describe("create (connectOrCreate)", () => {
@@ -19,7 +19,7 @@ describe("create (connectOrCreate)", () => {
     await simulateSeed(prisma)
   }
 
-  it("Should create and connect to existing", async ({ isolated }) => {
+  it("Should create and connect to existing", async ({ isolated, expect }) => {
     await isolated(async ({ prismock, prisma }) => {
       await seedData({ prismock, prisma })
 
@@ -84,7 +84,7 @@ describe("create (connectOrCreate)", () => {
     })
   })
 
-  it("Should create with dependencies and connect to it", async ({ isolated }) => {
+  it("Should create with dependencies and connect to it", async ({ isolated, expect }) => {
     await isolated(async ({ prismock, prisma }) => {
       await seedData({ prismock, prisma })
 
