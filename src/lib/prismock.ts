@@ -1,7 +1,7 @@
 import * as path from 'path';
 
 import { PrismaClient } from '@prisma/client';
-import { DMMF } from '@prisma/generator-helper';
+import { DMMF, type ActiveConnectorType } from '@prisma/generator-helper';
 import type { Generator } from '@prisma/internals';
 
 import { isAutoIncrement } from './operations';
@@ -9,7 +9,6 @@ import { Delegate, DelegateProperties, generateDelegate, Item } from './delegate
 import { generateClient, PrismockClientType } from './client';
 import { camelize, omit } from './helpers';
 import { generateDMMF, generateConfig } from './dmmf';
-import { execSync } from 'child_process';
 
 type Options = {
   schemaPath?: string;
@@ -23,7 +22,7 @@ export type Data = Record<string, Item[]>;
 export type Properties = Record<string, DelegateProperties>;
 export type Delegates = Record<string, Delegate>;
 
-export async function fetchProvider(schemaPath?: string): Promise<string> {
+export async function fetchProvider(schemaPath?: string): Promise<ActiveConnectorType> {
   const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));
   const config = await generateConfig(pathToModule);
 

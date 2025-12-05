@@ -1,16 +1,11 @@
-import { PrismaClient, Role, User } from '@prisma/client';
-import { version as clientVersion } from '@prisma/client/package.json';
+import { Role, User } from '@prisma/client';
 
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { formatEntries, formatEntry, generateId, resetDb, simulateSeed } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
-import { describe, it, expect, beforeAll } from 'vitest';
+import { formatEntries, formatEntry, generateId, simulateSeed } from '../../../testing';
+import { it, expect, beforeAll } from 'vitest';
+import { describe } from "../../../testing/helpers"
 
 
-describe('delete', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('delete', ({ prisma, prismock }) => {
   const data = {
     user1: { email: 'user-delete-1@company.com', password: 'password', warnings: 0 },
     user2: { email: 'user-delete-2@company.com', password: 'password', warnings: 99 },
@@ -60,10 +55,7 @@ describe('delete', () => {
   ];
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     const user1 = await prisma.user.create({ data: data.user1 });

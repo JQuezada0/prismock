@@ -1,22 +1,16 @@
-import { Blog, PrismaClient, User } from '@prisma/client';
+import type { Blog, User } from '@prisma/client';
 import { createId } from '@paralleldrive/cuid2';
 
-import { resetDb, seededUsers, simulateSeed } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
-import { describe, it, expect, beforeAll } from "vitest"
+import { seededUsers, simulateSeed } from '../../../testing';
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('delete unique', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('delete unique', ({ prisma, prismock }) => {
   let realUser: User;
   let mockUser: User;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     realUser = (await prisma.user.findUnique({ where: { email: seededUsers[0].email } }))!;

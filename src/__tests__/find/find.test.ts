@@ -1,27 +1,21 @@
-import { Blog, Post, Prisma, User, PrismaClient } from '@prisma/client';
-import { version as clientVersion } from '@prisma/client/package.json';
+import { Blog, Post, Prisma, User } from '@prisma/client';
 
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import {
   buildPost,
   formatEntries,
   formatEntry,
   generateId,
   isUUID,
-  resetDb,
   seededBlogs,
   seededUsers,
   simulateSeed,
 } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
 import { fetchProvider } from '../../lib/prismock';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('find', async () => {
+describe('find', async ({ prisma, prismock }) => {
   let provider: string = await fetchProvider();
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
   let realAuthor: User;
   let mockAuthor: User;
 
@@ -29,10 +23,7 @@ describe('find', async () => {
   let mockBlog: Blog;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     provider = await fetchProvider();

@@ -1,11 +1,12 @@
-import type { Prisma, PrismaClient } from "@prisma/client"
+import type { PrismaClient } from "@prisma/client"
 import type { DMMF } from "@prisma/generator-helper"
 import type * as runtime from "@prisma/client/runtime/library"
+import * as path from "path"
+import * as fs from "fs"
 
-import type { Delegate, Item } from "./delegate"
+import type { Delegate } from "./delegate"
 import { Data, Delegates, generateDelegates } from "./prismock"
 import { applyExtensions, type ExtensionsDefinition } from "./extensions"
-import { execSync } from "child_process"
 import { generateDMMF } from "./dmmf"
 import { camelize } from "./helpers"
 import type { PGlite } from "@electric-sql/pglite"
@@ -144,21 +145,20 @@ export type PrismaModule<PC = PrismaClient> = {
   dmmf: runtime.BaseDMMF
 }
 
-function getPgLitePrismockData(options: {
+export function getPgLitePrismockData(options: {
   schemaPath: string
   pglite: InstanceType<typeof PGlite>
   adapter: InstanceType<typeof PrismaPGlite>
   datamodel: DMMF.Document
   prismaClient: Record<string, any>
 }) {
-  const rawSql = execSync(`bun prisma migrate diff --from-empty --to-schema-datamodel=${options.schemaPath} --script`, {
-    encoding: "utf-8",
+  const schemaPathDir = path.dirname(options.schemaPath)
+  const migrationsPath = path.join(schemaPathDir, "migrations")
+  const migrationsDirContents = fs.readdirSync(migrationsPath, {
+    withFileTypes: true
   })
 
-  const sql = rawSql.replace(
-    /((?:CONSTRAINT\s+"[^"]+"\s+)?FOREIGN KEY\s*\([^)]*\)\s*REFERENCES\s+[^\s(]+\s*\([^)]*\))(?![\s\S]*?\bDEFERRABLE\b)/gi,
-    `$1 DEFERRABLE INITIALLY DEFERRED`
-  )
+  const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory())
 
   const connectionPromise = options.adapter.connect()
 
@@ -170,8 +170,12 @@ function getPgLitePrismockData(options: {
       CREATE SCHEMA public;
     `)
 
-    // Re-run the create script
-    await connection.executeScript(sql)
+    for (const migration of migrationsDir) {
+      const migrationPath = path.join(migrationsPath, migration.name, "migration.sql")
+      const migrationContent = await fs.promises.readFile(migrationPath, "utf8")
+  
+      await connection.executeScript(migrationContent)
+    }
   }
 
   const getData = async () => {
@@ -235,14 +239,19 @@ type GetClientOptions<PrismaClientClassType extends new (...args: any[]) => any>
   usePgLite?: boolean | null | undefined
 }
 
-export async function getClient<PrismaClientType extends new (options: { adapter?: runtime.SqlDriverAdapterFactory | null }, ...args: any[]) => any>(options: GetClientOptions<PrismaClientType>): Promise<PrismockClientType<InstanceType<PrismaClientType>>> {
+export async function getClient<
+  PrismaClientType extends new (options: { adapter?: runtime.SqlDriverAdapterFactory | null }, ...args: any[]) => any,
+>(options: GetClientOptions<PrismaClientType>): Promise<PrismockClientType<InstanceType<PrismaClientType>>> {
   const datamodel = await generateDMMF(options.schemaPath)
 
   if (options.usePgLite) {
     const { PGlite } = await import("@electric-sql/pglite")
     const { PrismaPGlite } = await import("pglite-prisma-adapter")
 
-    const pglite = new PGlite("memory://")
+    const pglite = new PGlite("memory://", {
+      relaxedDurability: true,
+      initialMemory: 1024 * 1024 * 1024, // 1GB
+    })
     const adapter = new PrismaPGlite(pglite)
 
     const prisma = new options.prismaClient({
@@ -294,10 +303,15 @@ export async function getClientClass<PrismaClientType extends new (...args: any[
       prismockData: PrismockData
 
       constructor(...args: any[]) {
-        const pglite = new PGlite("memory://")
+        const pglite = new PGlite("memory://", {
+          relaxedDurability: true,
+          initialMemory: 1024 * 1024 * 1024, // 1GB
+        })
         const adapter = new PrismaPGlite(pglite)
 
-        const prismaOptions = args[0] ?? {}
+        const inputPrismaOptions = args[0] ?? {}
+
+        const { datasourceUrl: _datasourceUrl, ...prismaOptions } = inputPrismaOptions
 
         super({ ...prismaOptions, adapter })
 
@@ -315,7 +329,7 @@ export async function getClientClass<PrismaClientType extends new (...args: any[
 
       async $connect(): runtime.JsPromise<void> {
         await this.reset()
-        
+
         return super.$connect()
       }
 

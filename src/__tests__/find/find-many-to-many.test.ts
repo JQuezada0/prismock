@@ -1,17 +1,10 @@
-import { PrismaClient } from '@prisma/client';
-import { describe, it, expect, beforeAll } from "vitest"
-import { buildSubscription, resetDb, seededBlogs, seededUsers, simulateSeed } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
+import { buildSubscription, seededBlogs, seededUsers, simulateSeed } from '../../../testing';
 
-describe('find (many-to-many)', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('find (many-to-many)', ({ prisma, prismock  }) => {
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     const realBlogs = await prisma.blog.findMany();

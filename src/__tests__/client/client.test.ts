@@ -1,29 +1,18 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
-import { resetDb, seededBlogs, seededPosts, seededUsers, simulateSeed } from '../../../testing';
-import { createPrismock, PrismockClientType, type Prismock } from '../../lib/client';
-import { fetchProvider, getProvider } from '../../lib/prismock';
+import { seededBlogs, seededPosts, seededUsers, simulateSeed } from '../../../testing';
+import { fetchProvider } from '../../lib/prismock';
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-import { describe, it, expect, beforeAll } from "vitest"
-
-describe('client', () => {
-  let prismock: Prismock;
-  let prisma: PrismaClient;
-
+describe('client', ({ prisma, prismock, reset }) => {
   let provider: string;
 
-  async function reset() {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+  beforeAll(async () => {
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     provider = await fetchProvider();
-  }
-
-  beforeAll(async () => {
-    await reset();
   });
 
   it('Should handle $connect', async () => {
@@ -113,6 +102,8 @@ describe('client', () => {
   it('Should handle $transaction', async () => {
     if (provider === 'postgresql') {
       await reset();
+      await simulateSeed(prisma);
+      await simulateSeed(prismock);
 
       await expect(prisma.$transaction([prisma.post.deleteMany()])).resolves.toEqual([{ count: seededPosts.length }]);
       await expect(prismock.$transaction([prismock.post.deleteMany()])).resolves.toEqual([{ count: seededPosts.length }]);

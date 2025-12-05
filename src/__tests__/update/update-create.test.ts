@@ -1,7 +1,6 @@
-import { Blog, PrismaClient, User } from '@prisma/client';
+import type { Blog, User } from '@prisma/client';
 
 import {
-  resetDb,
   simulateSeed,
   buildUser,
   buildPost,
@@ -10,13 +9,10 @@ import {
   seededUsers,
   seededBlogs,
 } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('update (create)', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('update (create)', ({ prisma, prismock }) => {
   let realUser: User;
   let mockUser: User;
 
@@ -33,10 +29,7 @@ describe('update (create)', () => {
   let mockBlog2: Blog;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
   });
 

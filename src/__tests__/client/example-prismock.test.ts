@@ -1,36 +1,36 @@
-import { describe, it, expect, vi, beforeAll } from 'vitest'
-import * as Client from "../../lib/client"
+import { it } from 'vitest'
+import { describe } from "../../../testing/helpers"
 
-vi.doMock("@prisma/client", async () => {
-  const actualPrisma = await vi.importActual<typeof import("@prisma/client")>("@prisma/client");
+describe('Example', async () => {
+  const { vi } = await import("vitest")
 
-  const PrismaClient = await Client.getClientClass({
-    PrismaClient: actualPrisma.PrismaClient,
-    prismaModule: actualPrisma.Prisma,
-    schemaPath: "./prisma/schema.prisma",
-    usePgLite: process.env.PRISMOCK_USE_PG_LITE ? true : undefined,
+  const Client = await import("../../lib/client")
+
+  vi.doMock("@prisma/client", async () => {
+    const actualPrisma = await vi.importActual<typeof import("@prisma/client")>("@prisma/client");
+  
+    const PrismaClient = await Client.getClientClass({
+      PrismaClient: actualPrisma.PrismaClient,
+      prismaModule: actualPrisma.Prisma,
+      schemaPath: "./prisma/schema.prisma",
+      usePgLite: process.env.PRISMOCK_USE_PG_LITE ? true : undefined,
+    })
+  
+    return {
+      ...actualPrisma,
+      PrismaClient,
+    };
   })
+  
+  const { fetchProvider } = await import('../../lib/prismock');
+  const provider: string = await fetchProvider();
 
-  return {
-    ...actualPrisma,
-    PrismaClient,
-  };
-})
-
-describe('Example', () => {
-  let provider: string;
-
-  beforeAll(async () => {
-    const { fetchProvider } = await import('../../lib/prismock');
-    provider = await fetchProvider();
-  });
-
-  describe('With mock', () => {
-    it('Should use prismock instead of prisma', async () => {
+  describe('With mock', ({ databaseUrl }) => {
+    it('Should use prismock instead of prisma', async ({ expect }) => {
       const { PrismaClient } = await import('@prisma/client')
       const { buildUser, formatEntries, formatEntry } = await import('../../../testing');
 
-      const prisma = new PrismaClient();
+      const prisma = new PrismaClient({ datasourceUrl: databaseUrl });
 
       await prisma.$connect()
 
@@ -41,7 +41,7 @@ describe('Example', () => {
       expect(formatEntries(found)).toEqual(formatEntries([user]));
     });
 
-    it('Should allow mocking queries', async () => {
+    it('Should allow mocking queries', async ({ expect }) => {
       if (provider === 'postgresql') {
         const { PrismaClient } = await import('@prisma/client')
 

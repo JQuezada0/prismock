@@ -1,10 +1,11 @@
 import { exec } from 'child_process';
 
-import { Blog, Post, PrismaClient, Reaction, Role, Service, Subscription, User } from '@prisma/client';
+import type { Blog, Post, PrismaClient, Reaction, Service, Subscription, User } from '@prisma/client';
+import { Role } from '@prisma/client';
 import * as dotenv from 'dotenv';
 import { createId } from '@paralleldrive/cuid2';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 export const seededUsers = [buildUser(1), buildUser(2, { warnings: 5 }), buildUser(3, { warnings: 10 })];
 export const seededBlogs = [buildBlog(1, { title: 'blog-1' }), buildBlog(2, { title: 'blog-2', userId: seededUsers[0].id })];

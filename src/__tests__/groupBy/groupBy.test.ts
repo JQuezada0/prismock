@@ -1,12 +1,9 @@
-import { PrismaClient, User } from '@prisma/client';
-import { buildUser, resetDb, seededUsers, simulateSeed } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
-import { describe, it, expect, beforeAll } from "vitest"
+import type { User } from '@prisma/client';
+import { buildUser, seededUsers, simulateSeed } from '../../../testing';
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('groupBy', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('groupBy', ({ prisma, prismock }) => {
   let realAuthor1: User;
   let mockAuthor1: User;
 
@@ -14,11 +11,9 @@ describe('groupBy', () => {
   let mockAuthor2: User;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
+
     const users = [buildUser(4, { role: 'ADMIN' })];
     await prisma.user.createMany({ data: users });
     await prismock.user.createMany({ data: users });
