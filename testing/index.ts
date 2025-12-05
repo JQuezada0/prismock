@@ -1,6 +1,7 @@
 import { exec } from 'child_process';
 
-import { Blog, Post, PrismaClient, Reaction, Role, Service, Subscription, User } from '@prisma/client';
+import type { Blog, Post, PrismaClient, Reaction, Service, Subscription, User } from '@prisma/client';
+import { Role } from '@prisma/client';
 import * as dotenv from 'dotenv';
 import { createId } from '@paralleldrive/cuid2';
 

@@ -113,14 +113,6 @@ async function createDatabaseMysql(options: CreateDatabaseOptions) {
 }
 
 async function createDatabaseMongodb(options: CreateDatabaseOptions) {
-  // const { MongoClient } = await import("mongodb")
-
-  // const client = new MongoClient(process.env.DATABASE_URL!)
-
-  // await client.db(options.databaseName).dropDatabase()
-
-  // await client.close()
-  
   const databaseUrl = useDatabase(process.env.DATABASE_URL!, options.databaseName)
 
   const res = spawnSync(`bun prisma migrate reset --force --skip-seed`, {

@@ -14,10 +14,6 @@ describe("create (connectOrCreate)", () => {
     },
   }
 
-  beforeAll(async () => {
-    await resetDb();
-  });
-
   const seedData = async ({ prismock, prisma }: { prismock: PrismockClientType; prisma: PrismaClient }) => {
     await simulateSeed(prismock)
     await simulateSeed(prisma)
