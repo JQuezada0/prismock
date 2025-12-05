@@ -33,8 +33,6 @@ describe('client', ({ databaseUrl }) => {
   let prisma: PrismaService;
 
   async function reset() {
-    await resetDb();
-
     prisma = new PrismaService({ datasourceUrl: databaseUrl });
     prismock = new PrismockService();
     customPrismock = new CustomPrismockService();

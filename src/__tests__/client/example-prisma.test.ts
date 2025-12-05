@@ -1,12 +1,12 @@
 import { it, expect, beforeAll } from "vitest"
 import { describe } from "../../../testing/helpers"
 
-import { resetDb, simulateSeed } from '../../../testing';
+import { simulateSeed } from '../../../testing';
 
-describe('Example', ({ prisma }) => {
+describe('Example', ({ prisma, reset }) => {
   describe('Without mock', () => {
     beforeAll(async () => {
-      await resetDb();
+      await reset()
       await simulateSeed(prisma);
     });
 
