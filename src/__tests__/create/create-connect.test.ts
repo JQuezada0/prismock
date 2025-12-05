@@ -1,9 +1,9 @@
 import { seededPosts } from '../../../testing';
-import { describe, expect } from "vitest"
+import { describe } from "vitest"
 import { it } from "../../../testing/helpers"
 
 describe('create (connect)', () => {
-  it('Should create with multiple dependencies and connect to it', async ({ isolated }) => {
+  it('Should create with multiple dependencies and connect to it', async ({ isolated, expect }) => {
     await isolated(async ({ prisma, prismock, seedData }) => {
       await seedData()
 
@@ -45,7 +45,7 @@ describe('create (connect)', () => {
     })
   });
 
-  it('Should create with dependency and connect to it', async ({ isolated }) => {
+  it('Should create with dependency and connect to it', async ({ isolated, expect }) => {
     await isolated(async ({ prisma, prismock, seedData }) => {
       await seedData()
 

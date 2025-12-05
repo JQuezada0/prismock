@@ -184,7 +184,7 @@ jobs:
         run: bun prisma db push
 
       - name: Seed database
-        run: bun prisma db seed
+        run: bun prisma db seed && bun prisma generate
 
       - name: Run tests
         run: bun run test --reporter=verbose
