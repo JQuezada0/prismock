@@ -349,6 +349,21 @@ async function resetDatabaseMongodb(options: CreateDatabaseOptions) {
     throw res.error
   }
 
+  const res2 = spawnSync(`bun prisma db push --accept-data-loss`, {
+    encoding: "utf-8",
+    env: {
+      ...process.env,
+      DATABASE_URL: databaseUrl,
+    },
+    stdio: "ignore",
+    cwd: process.cwd(),
+    shell: true,
+  })
+
+  if (res2.error) {
+    throw res2.error
+  }
+
   return databaseUrl
 }
 
