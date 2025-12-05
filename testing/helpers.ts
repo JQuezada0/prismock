@@ -14,7 +14,9 @@ type TestContextExtended = {
 }
 
 async function getPrismockClient() {
-  if (process.env.PRISMOCK_USE_PG_LITE) {
+  const provider = await fetchProvider()
+
+  if (process.env.PRISMOCK_USE_PG_LITE && provider === "postgresql") {
     const { prismock, pglite } = await TestClients.createPgLitePrismockClient()
 
     await createDatabaseUsingPostgres({

@@ -179,6 +179,31 @@ export async function createDatabaseUsingPostgres(options: CreateDatabaseUsingPo
   ])
 }
 
+export async function createDatabaseUsingMysql(options: CreateDatabaseUsingPostgresOptions) {
+  const schemaPathDir = path.dirname("./prisma/schema.prisma")
+  const migrationsPath = path.join(schemaPathDir, "migrations")
+  const migrationsDirContents = fs.readdirSync(migrationsPath, {
+    withFileTypes: true
+  })
+
+  const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory())
+
+  await options.execWithSetupClient([
+    `DROP DATABASE IF EXISTS ${options.databaseName};`,
+    `CREATE DATABASE ${options.databaseName}`
+  ])
+
+  const migrationQueries = await Promise.all(migrationsDir.map(async (migration) => {
+    const migrationPath = path.join(migrationsPath, migration.name, "migration.sql")
+    return await fs.promises.readFile(migrationPath, "utf8")
+  }))
+
+  await options.execWithClient([
+    `DROP SCHEMA public CASCADE; CREATE SCHEMA public;`,
+    ...migrationQueries,
+  ])
+}
+
 export async function createDatabasePostgresql(options: CreateDatabaseOptions) {
   const pg = await import("pg")
 
@@ -255,6 +280,46 @@ export async function resetDatabasePostgresql(options: CreateDatabaseOptions) {
   return databaseUrl
 }
 
+export async function resetDatabaseMysql(options: CreateDatabaseOptions) {
+  const mysql = await import("mysql2/promise")
+  
+  const databaseUrl = useDatabase(process.env.DATABASE_URL!, options.databaseName)
+  const client = await mysql.createConnection({
+    uri: databaseUrl,
+  }) 
+
+  await createDatabaseUsingMysql({
+    databaseName: options.databaseName,
+    execWithSetupClient: async () => {},
+    execWithClient: async (queries) => {
+      for (const query of queries) {
+        await client.query(query)
+      }
+    },
+  })
+}
+
+async function resetDatabaseMongodb(options: CreateDatabaseOptions) {
+  const databaseUrl = useDatabase(process.env.DATABASE_URL!, options.databaseName)
+
+  const res = spawnSync(`bun prisma migrate reset --force --skip-seed`, {
+    encoding: "utf-8",
+    env: {
+      ...process.env,
+      DATABASE_URL: databaseUrl,
+    },
+    stdio: "ignore",
+    cwd: process.cwd(),
+    shell: true,
+  })
+
+  if (res.error) {
+    throw res.error
+  }
+
+  return databaseUrl
+}
+
 export async function createDatabase(options: CreateDatabaseOptions) {
   const provider = await fetchProvider()
   
@@ -327,6 +392,10 @@ export async function resetDatabase(options: CreateDatabaseOptions) {
 
   if (provider === "postgresql") {
     return resetDatabasePostgresql(options)
+  } else if (provider === "mysql") {
+    return resetDatabaseMysql(options)
+  } else if (provider === "mongodb") {
+    return resetDatabaseMongodb(options)
   }
 
   throw new Error(`Unsupported provider: ${provider}`)
