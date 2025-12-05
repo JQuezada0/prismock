@@ -113,13 +113,13 @@ async function createDatabaseMysql(options: CreateDatabaseOptions) {
 }
 
 async function createDatabaseMongodb(options: CreateDatabaseOptions) {
-  const { MongoClient } = await import("mongodb")
+  // const { MongoClient } = await import("mongodb")
 
-  const client = new MongoClient(process.env.DATABASE_URL!)
+  // const client = new MongoClient(process.env.DATABASE_URL!)
 
-  await client.db(options.databaseName).dropDatabase()
+  // await client.db(options.databaseName).dropDatabase()
 
-  await client.close()
+  // await client.close()
   
   const databaseUrl = useDatabase(process.env.DATABASE_URL!, options.databaseName)
 
@@ -136,6 +136,21 @@ async function createDatabaseMongodb(options: CreateDatabaseOptions) {
 
   if (res.error) {
     throw res.error
+  }
+
+  const res2 = spawnSync(`bun prisma db push --accept-data-loss`, {
+    encoding: "utf-8",
+    env: {
+      ...process.env,
+      DATABASE_URL: databaseUrl,
+    },
+    stdio: "ignore",
+    cwd: process.cwd(),
+    shell: true,
+  })
+
+  if (res2.error) {
+    throw res2.error
   }
 
   return databaseUrl
