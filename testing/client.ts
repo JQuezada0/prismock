@@ -117,10 +117,7 @@ async function createDatabaseMongodb(options: CreateDatabaseOptions) {
 
   const client = new MongoClient(process.env.DATABASE_URL!)
 
-  await client.db("admin").dropDatabase({
-    dbName: options.databaseName,
-  })
-  await client.db(options.databaseName).command({ ping: 1 });
+  await client.db(options.databaseName).dropDatabase()
 
   await client.close()
   
