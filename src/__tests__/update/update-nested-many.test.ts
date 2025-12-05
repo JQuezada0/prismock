@@ -1,7 +1,6 @@
-import { Blog, PrismaClient, User } from '@prisma/client';
+import type { Blog, User } from '@prisma/client';
 
 import {
-  resetDb,
   simulateSeed,
   buildUser,
   buildPost,
@@ -10,11 +9,10 @@ import {
   seededUsers,
   seededBlogs,
 } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
-import { it, expect, beforeAll } from "vitest"
+import { it } from "vitest"
 import { describe } from "../../../testing/helpers"
 
-describe('updateMany (nested)', ({ prisma, prismock }) => {
+describe('updateMany (nested)', ({ prisma, prismock, beforeAll }) => {
   let realUser: User;
   let mockUser: User;
 
@@ -82,13 +80,13 @@ describe('updateMany (nested)', ({ prisma, prismock }) => {
     });
   });
 
-  it('Should return updated', () => {
+  it('Should return updated', ({ expect }) => {
     const expected = buildUser(1, { friends: 1 });
     expect(formatEntry(realUser)).toEqual(formatEntry(expected));
     expect(formatEntry(mockUser)).toEqual(formatEntry(expected));
   });
 
-  it('Should store updated', async () => {
+  it('Should store updated', async ({ expect }) => {
     const expected = [
       buildPost(1, { createdAt: date, authorId: seededUsers[0].id, blogId: seededBlogs[0].id }),
       buildPost(2, { authorId: seededUsers[0].id, blogId: seededBlogs[1].id }),
