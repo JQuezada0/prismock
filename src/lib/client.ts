@@ -175,6 +175,7 @@ export function getPgLitePrismockData(options: {
       const migrationContent = await fs.promises.readFile(migrationPath, "utf8")
   
       await connection.executeScript(migrationContent)
+
     }
   }
 
