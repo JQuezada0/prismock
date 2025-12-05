@@ -1,27 +1,8 @@
-import { resetDb, seededPosts, simulateSeed } from '../../../testing';
-// import { createPrismock, PrismockClientType } from '../../lib/client';
-import { describe, expect, beforeAll } from "vitest"
+import { seededPosts } from '../../../testing';
+import { describe, expect } from "vitest"
 import { it } from "../../../testing/helpers"
-import type { PrismockClientType } from '../../lib/client';
-import type { PrismaClient } from '@prisma/client';
 
 describe('create (connect)', () => {
-  // let prismock: PrismockClientType;
-  // let prisma: PrismaClient;
-
-  // beforeAll(async () => {
-  //   await resetDb();
-
-  //   // prisma = new PrismaClient();
-  //   // prismock = await createPrismock()
-  //   // await simulateSeed(prismock);
-  // });
-
-  // it.beforeEach(async ({ prismock, prisma }) => {
-  //   await simulateSeed(prismock);
-  //   await simulateSeed(prisma);
-  // });
-
   it('Should create with multiple dependencies and connect to it', async ({ isolated }) => {
     await isolated(async ({ prisma, prismock, seedData }) => {
       await seedData()

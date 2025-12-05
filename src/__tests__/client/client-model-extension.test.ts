@@ -1,12 +1,12 @@
 import { Prisma, Role } from "@prisma/client"
 import { createPrismock } from "../../lib/client"
 import { mockDeep } from "vitest-mock-extended"
-import { it, expect } from "vitest"
+import { it } from "vitest"
 import { describe } from "../../../testing/helpers"
 
 describe("client-model-extension", () => {
   describe("model extension", async ({ prismock }) => {
-    it("should work with extension definition as object", async () => {
+    it("should work with extension definition as object", async ({ expect }) => {
       const extensions = {
         model: {
           user: {
@@ -34,7 +34,7 @@ describe("client-model-extension", () => {
       })
     })
     
-    it("should work with extension definition as function", async () => {
+    it("should work with extension definition as function", async ({ expect }) => {
       const prismock = await createPrismock()
 
       const user = mockDeep<Prisma.$UserPayload['scalars']>({
