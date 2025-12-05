@@ -1,10 +1,10 @@
 import type { User } from '@prisma/client';
 
 import { simulateSeed, seededPosts, seededUsers, formatEntries, formatEntry } from '../../../testing';
-import { it, expect, beforeAll } from "vitest"
+import { it } from "vitest"
 import { describe } from "../../../testing/helpers"
 
-describe('update (connect)', ({ prisma, prismock }) => {
+describe('update (connect)', ({ prisma, prismock, beforeAll }) => {
   let realUser: User;
   let mockUser: User;
 
@@ -29,13 +29,13 @@ describe('update (connect)', ({ prisma, prismock }) => {
     });
   });
 
-  it('Should return connected', () => {
+  it('Should return connected', ({ expect }) => {
     const expected = seededUsers[0];
     expect(formatEntry(realUser)).toEqual(formatEntry(expected));
     expect(formatEntry(mockUser)).toEqual(formatEntry(expected));
   });
 
-  it('Should store connected', async () => {
+  it('Should store connected', async ({ expect }) => {
     const stored = await prisma.post.findMany();
     const mockStored = (await prismock.getData()).post;
 

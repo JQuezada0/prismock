@@ -9,10 +9,10 @@ import {
   seededUsers,
   seededBlogs,
 } from '../../../testing';
-import { it, expect, beforeAll } from "vitest"
+import { it } from "vitest"
 import { describe } from "../../../testing/helpers"
 
-describe('update (createMany)', ({ prisma, prismock }) => {
+describe('update (createMany)', ({ prisma, prismock, beforeAll }) => {
   let realUser: User;
   let mockUser: User;
 
@@ -81,13 +81,13 @@ describe('update (createMany)', ({ prisma, prismock }) => {
     });
   });
 
-  it('Should return created', () => {
+  it('Should return created', ({ expect }) => {
     const expected = buildUser(1, { friends: 1 });
     expect(formatEntry(realUser)).toEqual(formatEntry(expected));
     expect(formatEntry(mockUser)).toEqual(formatEntry(expected));
   });
 
-  it('Should store created', async () => {
+  it('Should store created', async ({ expect }) => {
     const expected = [
       buildPost(1, { authorId: seededUsers[0].id, blogId: seededBlogs[0].id }),
       buildPost(2, { authorId: seededUsers[1].id, blogId: seededBlogs[1].id }),
