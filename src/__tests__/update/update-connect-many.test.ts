@@ -1,10 +1,10 @@
 import type { User } from '@prisma/client';
 
 import { simulateSeed, seededPosts, seededUsers /* , formatEntries, formatEntry */ } from '../../../testing';
-import { it, expect, beforeAll } from "vitest"
+import { it } from "vitest"
 import { describe } from "../../../testing/helpers"
 
-describe('update (connect - many)', ({ prisma, prismock }) => {
+describe('update (connect - many)', ({ prisma, prismock, beforeAll }) => {
   // let realAuthor1: User;
   let realAuthor2: User;
 
@@ -22,7 +22,7 @@ describe('update (connect - many)', ({ prisma, prismock }) => {
     mockAuthor2 = (await prismock.user.findFirst({ where: { email: seededUsers[1].email } }))!;
   });
 
-  it('Should update with connect for many relation', async () => {
+  it('Should update with connect for many relation', async ({ expect }) => {
     const realPost = await prisma.post.update({
       where: {
         title: seededPosts[0].title,
