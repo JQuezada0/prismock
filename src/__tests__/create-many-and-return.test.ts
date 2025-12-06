@@ -1,23 +1,17 @@
-import { createPrismock, PrismockClientType } from '../lib/client';
-import { resetDb } from '../../testing';
-import { PrismaClient, User } from '@prisma/client';
-import { fetchGenerator, getProvider } from '../lib/prismock';
-import { describe, it, expect, beforeAll } from "vitest"
+import { simulateSeed } from '../../testing';
+import type { User } from '@prisma/client';
+import { fetchProvider } from '../lib/prismock';
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../testing/helpers"
 
-describe('createManyAndReturn', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
+describe('createManyAndReturn', ({ prisma, prismock }) => {
   let provider: string;
 
   beforeAll(async () => {
-    await resetDb();
+    await simulateSeed(prisma);
+    await simulateSeed(prismock);
 
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
-
-    const generator = await fetchGenerator();
-    provider = getProvider(generator)!;
-    generator.stop();
+    provider = await fetchProvider()
   });
 
   describe('On success', () => {

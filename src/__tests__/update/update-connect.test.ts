@@ -1,13 +1,10 @@
-import { PrismaClient, User } from '@prisma/client';
+import type { User } from '@prisma/client';
 
-import { resetDb, simulateSeed, seededPosts, seededUsers, formatEntries, formatEntry } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
-import { describe, it, expect, beforeAll } from "vitest"
+import { simulateSeed, seededPosts, seededUsers, formatEntries, formatEntry } from '../../../testing';
+import { it } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('update (connect)', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('update (connect)', ({ prisma, prismock, beforeAll }) => {
   let realUser: User;
   let mockUser: User;
 
@@ -15,10 +12,7 @@ describe('update (connect)', () => {
   let mockAuthor: User;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     realAuthor = (await prisma.user.findUnique({ where: { email: 'user1@company.com' } }))!;
@@ -35,15 +29,15 @@ describe('update (connect)', () => {
     });
   });
 
-  it('Should return connected', () => {
+  it('Should return connected', ({ expect }) => {
     const expected = seededUsers[0];
     expect(formatEntry(realUser)).toEqual(formatEntry(expected));
     expect(formatEntry(mockUser)).toEqual(formatEntry(expected));
   });
 
-  it('Should store connected', async () => {
+  it('Should store connected', async ({ expect }) => {
     const stored = await prisma.post.findMany();
-    const mockStored = prismock.getData().post;
+    const mockStored = (await prismock.getData()).post;
 
     expect(formatEntries(stored.map(({ createdAt, imprint, blogId, ...post }) => post))).toEqual(
       formatEntries(seededPosts.map(({ createdAt, imprint, blogId, ...post }) => ({ ...post, authorId: realAuthor.id }))),

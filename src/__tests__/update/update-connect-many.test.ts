@@ -1,13 +1,10 @@
-import { PrismaClient /* , User */, User } from '@prisma/client';
+import type { User } from '@prisma/client';
 
-import { resetDb, simulateSeed, seededPosts, seededUsers /* , formatEntries, formatEntry */ } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
-import { describe, it, expect, beforeAll } from "vitest"
+import { simulateSeed, seededPosts, seededUsers /* , formatEntries, formatEntry */ } from '../../../testing';
+import { it } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('update (connect - many)', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('update (connect - many)', ({ prisma, prismock, beforeAll }) => {
   // let realAuthor1: User;
   let realAuthor2: User;
 
@@ -15,10 +12,7 @@ describe('update (connect - many)', () => {
   let mockAuthor2: User;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     // realAuthor1 = (await prisma.user.findFirst({ where: { email: seededUsers[0].email } }))!;
@@ -28,7 +22,7 @@ describe('update (connect - many)', () => {
     mockAuthor2 = (await prismock.user.findFirst({ where: { email: seededUsers[1].email } }))!;
   });
 
-  it('Should update with connect for many relation', async () => {
+  it('Should update with connect for many relation', async ({ expect }) => {
     const realPost = await prisma.post.update({
       where: {
         title: seededPosts[0].title,
@@ -78,7 +72,7 @@ describe('update (connect - many)', () => {
 
   // it('Should store connected', async () => {
   //   const stored = await prisma.post.findMany();
-  //   const mockStored = prismock.getData().post;
+  //   const mockStored = (await prismock.getData()).post;
 
   //   expect(formatEntries(stored.map(({ createdAt, imprint, ...post }) => post))).toEqual(
   //     formatEntries(seededPosts.map(({ createdAt, imprint, ...post }) => ({ ...post, authorId: realAuthor.id }))),

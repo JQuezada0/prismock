@@ -1,55 +1,31 @@
 import * as path from 'path';
 
-import { PrismaClient } from '@prisma/client';
-import { DMMF } from '@prisma/generator-helper';
+import { DMMF, type ActiveConnectorType } from '@prisma/generator-helper';
 import type { Generator } from '@prisma/internals';
 
 import { isAutoIncrement } from './operations';
 import { Delegate, DelegateProperties, generateDelegate, Item } from './delegate';
-import { generateClient, PrismockClientType } from './client';
 import { camelize, omit } from './helpers';
-
-type Options = {
-  schemaPath?: string;
-};
+import { generateConfig } from './dmmf';
+import type { Model } from "@prisma/dmmf"
 
 type OptionsSync = {
-  models: DMMF.Model[];
+  models: Model[];
 };
 
 export type Data = Record<string, Item[]>;
 export type Properties = Record<string, DelegateProperties>;
 export type Delegates = Record<string, Delegate>;
 
-const PrismaInternals = await import('@prisma/internals');
-
-const { getDMMF, getGenerator, getSchema } = PrismaInternals;
-
-export async function generateDMMF(schemaPath?: string) {
+export async function fetchProvider(schemaPath?: string): Promise<ActiveConnectorType> {
   const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));
-  const datamodel = await getSchema(pathToModule);
-  return getDMMF({ datamodel });
-}
+  const config = await generateConfig(pathToModule);
 
-export async function fetchGenerator(schemaPath?: string) {
-  const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));
-  return getGenerator({
-    schemaPath: pathToModule,
-  });
+  return config.datasources[0].activeProvider
 }
 
 export function getProvider(generator: Generator) {
   return generator.options?.datasources[0].activeProvider;
-}
-
-export async function generatePrismock<T = PrismaClient>(options: Options = {}): Promise<PrismockClientType<T>> {
-  const schema = await generateDMMF(options.schemaPath);
-  return generatePrismockSync<T>({ models: schema.datamodel.models as DMMF.Model[] });
-}
-
-export function generatePrismockSync<T = PrismockClientType>(options: OptionsSync): PrismockClientType<T> {
-  const { delegates, getData, setData } = generateDelegates(options);
-  return generateClient<T>(delegates, getData, setData);
 }
 
 export function generateDelegates(options: OptionsSync) {
@@ -58,12 +34,11 @@ export function generateDelegates(options: OptionsSync) {
   const properties: Properties = {};
   const delegates: Delegates = {};
 
-  function getData() {
+  async function getData() {
     return data;
   }
 
-  function setData(d: Data) {
-    // eslint-disable-next-line no-console
+  async function setData(d: Data) {
     console.log(
       'Deprecation notice: setData will be removed in a future version and should not be used anymore. Please use a mix of "reset" and create/createMany to achieve the same result',
     );

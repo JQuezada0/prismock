@@ -110,7 +110,12 @@ jobs:
       - name: Run Prisma migrations
         run: bunx prisma migrate dev --name init
 
-      - name: Run tests
+      - name: Run tests with Prismock
+        run: bun run test
+
+      - name: Run tests with Prismock PgLite
+        env:
+          PRISMOCK_USE_PG_LITE: true
         run: bun run test
 
   test-mongodb:
@@ -176,13 +181,13 @@ jobs:
           rm testing/index.ts && cp testing/index.mongodb.ts testing/index.ts
 
       - name: Push Prisma schema
-        run: bunx prisma db push
+        run: bun prisma db push
 
       - name: Seed database
-        run: bunx prisma db seed
+        run: bun prisma db seed && bun prisma generate
 
       - name: Run tests
-        run: bun run test
+        run: bun run test --reporter=verbose
 
   test-mysql:
     name: Test MySQL
@@ -237,8 +242,8 @@ jobs:
           rm prisma/schema.prisma && cp testing/mysql/schema.prisma prisma/
 
       - name: Run Prisma migrations
-        run: bunx prisma migrate dev --name init
+        run: bun prisma migrate dev --name init && bun prisma generate
 
       - name: Run tests
-        run: bun run test
+        run: bun run test --reporter=verbose
 

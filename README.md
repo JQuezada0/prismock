@@ -1,7 +1,7 @@
 # prismock
 
 [![npm](https://img.shields.io/npm/v/@pkgverse/prismock)](https://www.npmjs.com/package/@pkgverse/prismock)
-[![npm](https://img.shields.io/npm/dm/@pkgverse/prismock)](https://www.npmjs.com/package/prismock)
+[![npm](https://img.shields.io/npm/dm/@pkgverse/prismock)](https://www.npmjs.com/package/@pkgverse/prismock)
 
 ## NOTE
 Originally forked from https://github.com/morintd/prismock. This library is awesome, and I felt it could use some modernization to work with newer versions of prisma and add support for
@@ -10,9 +10,9 @@ I haven't personally tested the CJS functionality.
 
 ---
 
-This is a mock for `PrismaClient`. It actually reads your `schema.prisma` and generate models based on it.
+This is a mock for `PrismaClient`. It actually reads your `schema.prisma` and generate models based on it. For postgres it also offers a true in-memory database client by using PgLite.
 
-It perfectly simulates Prisma's API and store everything in-memory for fast, isolated, and retry-able unit tests.
+It perfectly simulates Prisma's API and stores everything in-memory for fast, isolated, and retry-able unit tests.
 
 It's heavily tested, by comparing the mocked query results with real results from prisma. Tested environments include `MySQL`, `PostgreSQL` and `MongoDB`.
 
@@ -34,20 +34,54 @@ npm
 $ npm add --save-dev @pkgverse/prismock
 ```
 
+bun
+
+```
+$ bun add -E -D @pkgverse/prismock
+```
+
 # Usage
 
 ```ts
-import { Prisma, PrismaClient } from "${your_prisma_client_directory}"
-import { createPrismockClient } from 'prismock';
+import { PrismaClient } from "${your_prisma_client_directory}"
+import { getClient } from 'prismock';
 
 // Pass in the Prisma namespace, and manually define the type of your prisma client
-let mockedClient = await createPrismockClient<PrismaClient>(Prisma)
+let mockedClient = await getClient({
+  prismaClient: PrismaClient,
+  schemaPath: "prisma/schema.prisma",
+})
 
 // Optionally apply your client extensions to the client
 mockedClient = applyExtensions(mockedClient)
 ```
 
 That's it, prisma will be mocked in all your tests (tested with ViTest)
+
+## Using PgLite (experimental)
+
+If you're using prisma with postgres, you can optionally choose to have the mocked prisma client use PgLite for more 'true-to-life' tests.
+
+```ts
+import { PrismaClient } from "${your_prisma_client_directory}"
+import { getClient } from 'prismock';
+
+let mockedClient = await getClient({
+  prismaClient: PrismaClient,
+  schemaPath: "prisma/schema.prisma",
+  usePgLite: true,
+})
+
+// Optionally apply your client extensions to the client
+mockedClient = applyExtensions(mockedClient)
+```
+
+The prisma client will execute everything as it normally would purely in-memory.
+
+⚠️ ### NOTE ⚠️
+The PgLite database is initialized by executing your migration history. It's currently assumed that the migrations directory is in the same directory
+as the schema file, i.e. the directory of the file path you pass in as `schemaPath`. If that's not the case, this will most likely fail.
+
 
 ## PrismaClient
 
@@ -62,7 +96,10 @@ vi.mock('@prisma/client', async () => {
 
   return {
     ...actual,
-    PrismaClient: await actualPrismock.createPrismockClass(actual.Prisma),
+    PrismaClient: await actualPrismock.getClientClass({
+      prismaClient: actual.PrismaClient,
+      schemaPath: "prisma/schema.prisma",
+    }),
   };
 });
 ```
@@ -72,10 +109,13 @@ vi.mock('@prisma/client', async () => {
 You can instantiate a `PrismockClient` directly and use it in your test, or pass it to a test version of your app.
 
 ```ts
-import { Prisma } from '${your_prisma_client_directory}';
-import { createPrismockClient } from 'prismock';
+import { PrismaClient } from '${your_prisma_client_directory}';
+import { getClient } from 'prismock';
 
-const client = await createPrismockClient(Prisma);
+const client = await getClient({
+  PrismaClient,
+  schemaPath: "prisma/schema.prisma",
+});
 ```
 
 Then, you will be able to write your tests as if your app was using an in-memory Prisma client.
@@ -89,12 +129,12 @@ See [use with decimal.js](https://github.com/morintd/prismock/blob/master/docs/u
 Two additional functions are returned compared to the PrismaClient, `getData`, and `reset`.
 
 ```ts
-const prismock = new PrismockClient();
+const prismock = await getClient({...});
 prismock.getData(); // { user: [] }
 ```
 
 ```ts
-const prismock = new PrismockClient();
+const prismock = await getClient({...});
 prismock.reset(); // State of prismock back to its original
 ```
 

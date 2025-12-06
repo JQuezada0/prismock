@@ -1,7 +1,6 @@
-import { Blog, PrismaClient, User } from '@prisma/client';
+import type { Blog, User } from '@prisma/client';
 
 import {
-  resetDb,
   simulateSeed,
   buildUser,
   buildPost,
@@ -10,13 +9,10 @@ import {
   seededUsers,
   seededBlogs,
 } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('update (createMany)', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('update (createMany)', ({ prisma, prismock, beforeAll }) => {
   let realUser: User;
   let mockUser: User;
 
@@ -33,10 +29,7 @@ describe('update (createMany)', () => {
   let mockBlog2: Blog;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
   });
 
@@ -88,13 +81,13 @@ describe('update (createMany)', () => {
     });
   });
 
-  it('Should return created', () => {
+  it('Should return created', ({ expect }) => {
     const expected = buildUser(1, { friends: 1 });
     expect(formatEntry(realUser)).toEqual(formatEntry(expected));
     expect(formatEntry(mockUser)).toEqual(formatEntry(expected));
   });
 
-  it('Should store created', async () => {
+  it('Should store created', async ({ expect }) => {
     const expected = [
       buildPost(1, { authorId: seededUsers[0].id, blogId: seededBlogs[0].id }),
       buildPost(2, { authorId: seededUsers[1].id, blogId: seededBlogs[1].id }),
@@ -102,7 +95,7 @@ describe('update (createMany)', () => {
     ].map((post) => ({ ...post, createdAt: expect.any(Date), imprint: expect.any(String) }));
 
     const stored = await prisma.post.findMany();
-    const mockStored = prismock.getData().post;
+    const mockStored = (await prismock.getData()).post;
     expect(formatEntries(stored)).toEqual(
       formatEntries([
         { ...expected[0], authorId: realAuthor1.id, blogId: realBlog1.id },

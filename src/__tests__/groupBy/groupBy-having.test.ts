@@ -1,17 +1,11 @@
-import { PrismaClient, Prisma } from '@prisma/client';
-import { describe, it, expect, beforeAll } from "vitest"
-import { resetDb, simulateSeed, buildUser } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
+import type { Prisma } from '@prisma/client';
+import { it, expect, beforeAll } from "vitest"
+import { simulateSeed, buildUser } from '../../../testing';
+import { describe } from "../../../testing/helpers"
 
-describe('groupBy', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('groupBy', ({ prisma, prismock }) => {
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     const users = [

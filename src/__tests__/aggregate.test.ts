@@ -1,20 +1,12 @@
-import { PrismaClient } from '@prisma/client';
+import { simulateSeed } from '../../testing';
+import { it, expect } from "vitest"
+import { describe } from "../../testing/helpers"
 
-import { resetDb, simulateSeed } from '../../testing';
-import { createPrismock, PrismockClientType } from '../lib/client';
-import { describe, it, expect, beforeAll } from "vitest"
-
-describe('aggregate', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('aggregate', ({ prisma, prismock, beforeAll }) => {
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
-
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
+
     await prisma.user.create({ data: { email: 'user4@company.com', password: 'password' } });
     await prismock.user.create({ data: { email: 'user4@company.com', password: 'password' } });
   });

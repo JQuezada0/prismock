@@ -1,13 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import { seededPosts, seededUsers, simulateSeed } from '../../../testing';
+import { it } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-import { resetDb, seededPosts, seededUsers, simulateSeed } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
-import { describe, it, expect, beforeAll } from "vitest"
-
-describe('update (connectOrCreate)', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('update (connectOrCreate)', ({ prisma, prismock, beforeAll }) => {
   const select = {
     title: true,
     author: {
@@ -18,14 +13,11 @@ describe('update (connectOrCreate)', () => {
   };
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
   });
 
-  it('Should update and connect to existing', async () => {
+  it('Should update and connect to existing', async ({ expect }) => {
     const mockPost = await prismock.post.update({
       data: {
         title: 'title-connect',
@@ -82,7 +74,7 @@ describe('update (connectOrCreate)', () => {
     });
   });
 
-  it('Should update with dependencies and connect to it', async () => {
+  it('Should update with dependencies and connect to it', async ({ expect }) => {
     const mockPost = await prismock.post.update({
       data: {
         title: 'title-connect-create',

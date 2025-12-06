@@ -6,22 +6,16 @@ import {
   formatEntry,
   generateId,
   isUUID,
-  resetDb,
   seededBlogs,
   seededUsers,
   simulateSeed,
 } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
+import { PrismockClientType } from '../../lib/client';
 import { isCuid } from '@paralleldrive/cuid2';
-import { describe, it, expect, beforeAll } from "vitest"
+import { describe } from "vitest"
+import { it } from "../../../testing/helpers"
 
 describe('create', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
-  const mockUsers: User[] = [];
-  const realUsers: User[] = [];
-
   const data = {
     user1: { email: 'user4@company.com', password: 'password', warnings: 0 },
     user2: { email: 'user5@company.com', password: 'password', warnings: 0 },
@@ -33,19 +27,21 @@ describe('create', () => {
       friends: 1,
       money: BigInt('534543543534'),
       parameters: { content: true },
-      signal: Buffer.from([1, 2, 3, 4]),
+      signal: new Uint8Array([1, 2, 3, 4]),
       warnings: 1,
     },
     user4: { email: 'user-many-1@company.com', password: 'password', warnings: 0, birthday: new Date('01-01-1971') },
     user5: { email: 'user-many-2@company.com', password: 'password', warnings: 0, birthday: new Date('12-12-2012') },
   };
 
-  beforeAll(async () => {
-    await resetDb();
+  const seedData = async ({ prismock, prisma }: { prismock: PrismockClientType; prisma: PrismaClient }) => {
+    await simulateSeed(prismock)
+    await simulateSeed(prisma)
 
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
-    await simulateSeed(prismock);
+    const mockUsers: User[] = [];
+    const realUsers: User[] = [];
+  
+    
 
     mockUsers.push(await prismock.user.create({ data: data.user1 }));
     mockUsers.push(await prismock.user.create({ data: data.user2 }));
@@ -54,178 +50,243 @@ describe('create', () => {
     realUsers.push(await prisma.user.create({ data: data.user1 }));
     realUsers.push(await prisma.user.create({ data: data.user2 }));
     realUsers.push(await prisma.user.create({ data: data.user3 }));
-  });
+
+    return {
+      data,
+      mockUsers,
+      realUsers,
+    }
+  }
 
   describe('create', () => {
-    it('Should create (with default value)', () => {
-      const expected = buildUser(4, {});
+    it('Should create (with default value)', async ({ isolated, expect }) => {
+      await isolated(async ({  prisma, prismock }) => {
+        const { mockUsers, realUsers } = await seedData({ prismock, prisma })
 
-      expect(formatEntry(realUsers[0])).toEqual(formatEntry(expected));
-      expect(formatEntry(mockUsers[0])).toEqual(formatEntry(expected));
+        const expected = buildUser(4, {});
+        
+        expect(formatEntry(realUsers[0])).toEqual(formatEntry(expected));
+        expect(formatEntry(mockUsers[0])).toEqual(formatEntry(expected));
+      })
     });
 
-    it('Should create (with default date value)', async () => {
-      const expected = { id: generateId(3), title: 'title3', authorId: seededUsers[0].id, blogId: seededBlogs[0].id };
-      const realPost = await prisma.post.create({
-        data: { title: 'title3', authorId: seededUsers[0].id, blogId: seededBlogs[0].id },
-      });
-      const mockPost = await prismock.post.create({
-        data: { title: 'title3', authorId: seededUsers[0].id, blogId: seededBlogs[0].id },
-      });
+    it('Should create (with default date value)', async ({ isolated, expect }) => {
+      await isolated(async ({ prisma, prismock }) => {
+        await seedData({ prismock, prisma })
 
-      const { createdAt: realPostCreatedAt, imprint: realImprint, ...expectedRealPost } = realPost;
-      const { createdAt: mockPostCreatedAt, imprint: mockImprint, ...expectedMockPost } = mockPost;
+        const expected = { id: generateId(3), title: 'title3', authorId: seededUsers[0].id, blogId: seededBlogs[0].id };
+        const realPost = await prisma.post.create({
+          data: { title: 'title3', authorId: seededUsers[0].id, blogId: seededBlogs[0].id },
+        });
+        const mockPost = await prismock.post.create({
+          data: { title: 'title3', authorId: seededUsers[0].id, blogId: seededBlogs[0].id },
+        });
 
-      expect(formatEntry(expectedRealPost)).toEqual(formatEntry(expected));
-      expect(realPostCreatedAt).toBeInstanceOf(Date);
-      expect(isUUID(realImprint)).toBe(true);
+        const { createdAt: realPostCreatedAt, imprint: realImprint, ...expectedRealPost } = realPost;
+        const { createdAt: mockPostCreatedAt, imprint: mockImprint, ...expectedMockPost } = mockPost;
 
-      expect(formatEntry(expectedMockPost)).toEqual(formatEntry(expected));
-      expect(mockPostCreatedAt).toBeInstanceOf(Date);
-      expect(isUUID(mockImprint)).toBe(true);
+        expect(formatEntry(expectedRealPost)).toEqual(formatEntry(expected));
+        expect(realPostCreatedAt).toBeInstanceOf(Date);
+        expect(isUUID(realImprint)).toBe(true);
+
+        expect(formatEntry(expectedMockPost)).toEqual(formatEntry(expected));
+        expect(mockPostCreatedAt).toBeInstanceOf(Date);
+        expect(isUUID(mockImprint)).toBe(true);
+      })
     });
 
-    it('Should create with increment', () => {
-      const expected = buildUser(5, {});
+    it('Should create with increment', async ({ isolated, expect }) => {
+      await isolated(async ({ prisma, prismock }) => {
+        const { mockUsers, realUsers } = await seedData({ prismock, prisma })
+        
+        const expected = buildUser(5, {});
 
-      expect(formatEntry(realUsers[1])).toEqual(formatEntry(expected));
-      expect(formatEntry(mockUsers[1])).toEqual(formatEntry(expected));
+        expect(formatEntry(realUsers[1])).toEqual(formatEntry(expected));
+        expect(formatEntry(mockUsers[1])).toEqual(formatEntry(expected));
+      })
+
     });
 
-    it('Should creat with default cuid value', async () => {
-      const realBlog3 = await prisma.blog.create({ data: { title: 'blog-3', category: '3' } });
-      const mockBlog3 = await prismock.blog.create({ data: { title: 'blog-3', category: '3' } });
+    it('Should create with default cuid value', async ({ isolated, expect }) => {
+      await isolated(async ({ prisma, prismock }) => {
+        const realBlog3 = await prisma.blog.create({ data: { title: 'blog-3', category: '3' } });
+        const mockBlog3 = await prismock.blog.create({ data: { title: 'blog-3', category: '3' } });
 
-      expect(isCuid(realBlog3.imprint)).toBe(true);
-      expect(isCuid(mockBlog3.imprint)).toBe(true);
+        expect(isCuid(realBlog3.imprint)).toBe(true);
+        expect(isCuid(mockBlog3.imprint)).toBe(true);
+      })
     });
 
-    it('Should creat with default string value', async () => {
-      const realBlog4 = await prisma.blog.create({ data: { title: 'blog-4', userId: realUsers[1].id } });
-      const mockBlog4 = await prismock.blog.create({ data: { title: 'blog-4', userId: mockUsers[1].id } });
+    it('Should creat with default string value', async ({ isolated, expect }) => {
+      await isolated(async ({ prisma, prismock }) => {
+        const { mockUsers, realUsers } = await seedData({ prismock, prisma })
 
-      expect(realBlog4.category).toBe('normal');
-      expect(mockBlog4.category).toBe('normal');
+        const realBlog4 = await prisma.blog.create({ data: { title: 'blog-4', userId: realUsers[1].id } });
+        const mockBlog4 = await prismock.blog.create({ data: { title: 'blog-4', userId: mockUsers[1].id } });
+
+        expect(realBlog4.category).toBe('normal');
+        expect(mockBlog4.category).toBe('normal');
+      })
     });
 
-    it('Should create with default int value', async () => {
-      const realBlog5 = await prisma.blog.create({ data: { title: 'blog-5', category: '5' } });
-      const mockBlog5 = await prismock.blog.create({ data: { title: 'blog-5', category: '5' } });
+    it('Should create with default int value', async ({ isolated, expect }) => {
+      await isolated(async ({ prisma, prismock }) => {
+        const { mockUsers, realUsers } = await seedData({ prismock, prisma })
 
-      expect(realBlog5.priority).toBe(1);
-      expect(mockBlog5.priority).toBe(1);
+        const realBlog5 = await prisma.blog.create({ data: { title: 'blog-5', category: '5' } });
+        const mockBlog5 = await prismock.blog.create({ data: { title: 'blog-5', category: '5' } });
+  
+        expect(realBlog5.priority).toBe(1);
+        expect(mockBlog5.priority).toBe(1);
+      })
     });
 
-    it('Should create with default value if receive undefined', async () => {
-      const realBlog6 = await prisma.blog.create({
-        data: { title: 'blog-6', category: undefined, userId: realUsers[0].id },
-      });
-      const mockBlog6 = await prismock.blog.create({
-        data: { title: 'blog-6', category: undefined, userId: realUsers[0].id },
-      });
+    it('Should create with default value if receive undefined', async ({ isolated, expect }) => {
+      await isolated(async ({ prisma, prismock }) => {
+        const { mockUsers, realUsers } = await seedData({ prismock, prisma })
 
-      expect(realBlog6.category).toBe('normal');
-      expect(mockBlog6.category).toBe('normal');
+        const realBlog6 = await prisma.blog.create({
+          data: { title: 'blog-6', category: undefined, userId: realUsers[0].id },
+        });
+        const mockBlog6 = await prismock.blog.create({
+          data: { title: 'blog-6', category: undefined, userId: realUsers[0].id },
+        });
+  
+        expect(realBlog6.category).toBe('normal');
+        expect(mockBlog6.category).toBe('normal');
+      })
+      
     });
 
-    it('Should create without default value if already set', () => {
-      const expected = buildUser(6, {
-        role: Role.ADMIN,
-        banned: true,
-        friends: 1,
-        money: BigInt('534543543534'),
-        parameters: { content: true },
-        signal: Buffer.from([1, 2, 3, 4]),
-        warnings: 1,
-      });
+    it('Should create without default value if already set', async ({ isolated, expect }) => {
+      await isolated(async ({ prisma, prismock }) => {
+        const { mockUsers, realUsers } = await seedData({ prismock, prisma })
 
-      expect(formatEntry(realUsers[2])).toEqual(formatEntry(expected));
-      expect(formatEntry(mockUsers[2])).toEqual(formatEntry(expected));
+        const expected = buildUser(6, {
+          role: Role.ADMIN,
+          banned: true,
+          friends: 1,
+          money: BigInt('534543543534'),
+          parameters: { content: true },
+          signal: new Uint8Array([1, 2, 3, 4]),
+          warnings: 1,
+        });
+  
+        expect(formatEntry(realUsers[2])).toEqual(formatEntry(expected));
+        expect(formatEntry(mockUsers[2])).toEqual(formatEntry(expected));
+      })
+      
     });
 
-    it('Should create and return item with nested select', async () => {
-      const expected = {
-        title: 'article-with-select',
-        author: {
-          email: data.user1.email,
-        },
-      };
-      const select = {
-        title: true,
-        author: {
-          select: {
-            email: true,
+    it('Should create and return item with nested select', async ({ isolated, expect }) => {
+      await isolated(async ({ prisma, prismock }) => {
+        const { mockUsers, realUsers, data } = await seedData({ prismock, prisma })
+
+        const expected = {
+          title: 'article-with-select',
+          author: {
+            email: data.user1.email,
           },
-        },
-      };
-
-      const realPost = await prisma.post.create({
-        data: { title: 'article-with-select', authorId: realUsers[0].id, blogId: seededBlogs[0].id },
-        select,
-      });
-
-      const mockPost = await prismock.post.create({
-        data: { title: 'article-with-select', authorId: mockUsers[0].id, blogId: seededBlogs[0].id },
-        select,
-      });
-
-      expect(realPost).toEqual(expected);
-      expect(mockPost).toEqual(expected);
+        };
+        const select = {
+          title: true,
+          author: {
+            select: {
+              email: true,
+            },
+          },
+        };
+  
+        const realPost = await prisma.post.create({
+          data: { title: 'article-with-select', authorId: realUsers[0].id, blogId: seededBlogs[0].id },
+          select,
+        });
+  
+        const mockPost = await prismock.post.create({
+          data: { title: 'article-with-select', authorId: mockUsers[0].id, blogId: seededBlogs[0].id },
+          select,
+        });
+  
+        expect(realPost).toEqual(expected);
+        expect(mockPost).toEqual(expected);
+      })
     });
   });
 
   describe('createMany', () => {
-    let mockResponse: { count: number };
-    let realResponse: { count: number };
+    // let mockResponse: { count: number };
+    // let realResponse: { count: number };
 
-    beforeAll(async () => {
-      mockResponse = await prismock.user.createMany({ data: [data.user4, data.user5] });
-      realResponse = await prisma.user.createMany({ data: [data.user4, data.user5] });
+    // beforeAll(async () => {
+      
+    // });
+
+    const seedDataCreateMany = async ({ prisma, prismock }: { prisma: PrismaClient; prismock: PrismockClientType }) => {
+      await seedData({ prismock, prisma })
+
+      const mockResponse = await prismock.user.createMany({ data: [data.user4, data.user5] });
+      const realResponse = await prisma.user.createMany({ data: [data.user4, data.user5] });
+      
+      return {
+        mockResponse,
+        realResponse,
+      }
+    }
+
+    it('Should create', async ({ isolated, expect }) => {
+      await isolated(async ({ prisma, prismock }) => {
+        await seedDataCreateMany({ prismock, prisma })
+
+        const expectedUsers = [
+          {
+            banned: false,
+            email: 'user-many-1@company.com',
+            friends: 0,
+            id: generateId(7),
+            money: BigInt(0),
+            parameters: {},
+            password: 'password',
+            role: 'USER',
+            signal: null,
+            warnings: 0,
+            birthday: new Date('01-01-1971'),
+          },
+          {
+            banned: false,
+            email: 'user-many-2@company.com',
+            friends: 0,
+            id: generateId(8),
+            money: BigInt(0),
+            parameters: {},
+            password: 'password',
+            role: 'USER',
+            signal: null,
+            warnings: 0,
+            birthday: new Date('12-12-2012'),
+          },
+        ];
+  
+        const mockUsers = (await prismock.getData()).user.slice(-2);
+        const realUsers = await prisma.user.findMany({
+          where: { email: { in: ['user-many-1@company.com', 'user-many-2@company.com'] } },
+        });
+  
+        expect(formatEntries(mockUsers)).toEqual(formatEntries(expectedUsers));
+        expect(formatEntries(realUsers)).toEqual(formatEntries(expectedUsers));
+      })
+      
     });
-    it('Should create', async () => {
-      const expectedUsers = [
-        {
-          banned: false,
-          email: 'user-many-1@company.com',
-          friends: 0,
-          id: generateId(7),
-          money: BigInt(0),
-          parameters: {},
-          password: 'password',
-          role: 'USER',
-          signal: null,
-          warnings: 0,
-          birthday: new Date('01-01-1971'),
-        },
-        {
-          banned: false,
-          email: 'user-many-2@company.com',
-          friends: 0,
-          id: generateId(8),
-          money: BigInt(0),
-          parameters: {},
-          password: 'password',
-          role: 'USER',
-          signal: null,
-          warnings: 0,
-          birthday: new Date('12-12-2012'),
-        },
-      ];
 
-      const mockUsers = prismock.getData().user.slice(-2);
-      const realUsers = await prisma.user.findMany({
-        where: { email: { in: ['user-many-1@company.com', 'user-many-2@company.com'] } },
-      });
+    it('Should return count', async ({ isolated, expect }) => {
+      await isolated(async ({ prisma, prismock }) => {
+        const { mockResponse, realResponse } = await seedDataCreateMany({ prismock, prisma })
 
-      expect(formatEntries(mockUsers)).toEqual(formatEntries(expectedUsers));
-      expect(formatEntries(realUsers)).toEqual(formatEntries(expectedUsers));
-    });
+        const expected = { count: 2 };
 
-    it('Should return count', () => {
-      const expected = { count: 2 };
+        expect(mockResponse).toEqual(expected);
+        expect(realResponse).toEqual(expected);
+      })
 
-      expect(mockResponse).toEqual(expected);
-      expect(realResponse).toEqual(expected);
     });
   });
 });

@@ -1,27 +1,21 @@
-import { Blog, Post, Prisma, User, PrismaClient } from '@prisma/client';
-import { version as clientVersion } from '@prisma/client/package.json';
+import { Blog, Post, Prisma, User } from '@prisma/client';
 
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import {
   buildPost,
   formatEntries,
   formatEntry,
   generateId,
   isUUID,
-  resetDb,
   seededBlogs,
   seededUsers,
   simulateSeed,
 } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
-import { fetchGenerator, getProvider } from '../../lib/prismock';
-import { describe, it, expect, beforeAll } from "vitest"
+import { fetchProvider } from '../../lib/prismock';
+import { it, expect, beforeAll } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('find', () => {
-  let provider: string;
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('find', async ({ prisma, prismock }) => {
+  let provider: string = await fetchProvider();
   let realAuthor: User;
   let mockAuthor: User;
 
@@ -29,15 +23,10 @@ describe('find', () => {
   let mockBlog: Blog;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
-    const generator = await fetchGenerator();
-    provider = getProvider(generator)!;
-    generator.stop();
+    provider = await fetchProvider();
 
     realAuthor = (await prisma.user.findUnique({ where: { email: 'user1@company.com' } }))!;
     mockAuthor = (await prismock.user.findUnique({ where: { email: 'user1@company.com' } }))!;
@@ -634,12 +623,11 @@ describe('find', () => {
 
     it("Should throw if doesn't exist", async () => {
       await expect(() => prisma.user.findFirstOrThrow({ where: { warnings: -1 } })).rejects.toThrow();
-      await expect(() => prismock.user.findFirstOrThrow({ where: { warnings: -1 } })).rejects.toEqual(
-        new PrismaClientKnownRequestError('No User found', {
-          code: 'P2025',
-          clientVersion,
-        }),
-      );
+      await expect(() => prismock.user.findFirstOrThrow({ where: { warnings: -1 } })).rejects.toThrowError(expect.objectContaining({
+        name: 'PrismaClientKnownRequestError',
+        "code": "P2025",
+        message: expect.stringMatching(/No record was found for a query/)
+      }))
     });
   });
 
@@ -659,12 +647,11 @@ describe('find', () => {
 
     it("Should throw if doesn't exist", async () => {
       await expect(() => prisma.user.findUniqueOrThrow({ where: { email: 'does-not-exist' } })).rejects.toThrow();
-      await expect(() => prismock.user.findUniqueOrThrow({ where: { email: 'does-not-exist' } })).rejects.toEqual(
-        new PrismaClientKnownRequestError('No User found', {
-          code: 'P2025',
-          clientVersion,
-        }),
-      );
+      await expect(() => prismock.user.findUniqueOrThrow({ where: { email: 'does-not-exist' } })).rejects.toThrowError(expect.objectContaining({
+        name: "PrismaClientKnownRequestError",
+        "code": "P2025",
+        message: expect.stringMatching(/No record was found for a query/)
+      }))
     });
   });
 });

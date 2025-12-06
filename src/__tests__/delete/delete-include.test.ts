@@ -1,13 +1,10 @@
-import { Blog, Post, PrismaClient } from '@prisma/client';
-import { resetDb, seededBlogs, seededPosts, simulateSeed } from '../../../testing';
-import { createPrismock, PrismockClientType } from '../../lib/client';
+import type { Blog, Post } from '@prisma/client';
+import { seededBlogs, seededPosts, simulateSeed } from '../../../testing';
 import { omit } from '../../lib/helpers';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('delete (includes)', () => {
-  let prismock: PrismockClientType;
-  let prisma: PrismaClient;
-
+describe('delete (includes)', ({ prisma, prismock, beforeAll }) => {
   let realDelete: Blog & { posts: Post[] };
   let mockDelete: Blog & { posts: Post[] };
 
@@ -24,10 +21,7 @@ describe('delete (includes)', () => {
   let mockPost2: Post;
 
   beforeAll(async () => {
-    await resetDb();
-
-    prisma = new PrismaClient();
-    prismock = await createPrismock()
+    await simulateSeed(prisma);
     await simulateSeed(prismock);
 
     realBlog1 = (await prisma.blog.findUnique({ where: { title: seededBlogs[0].title } }))!;
@@ -46,7 +40,7 @@ describe('delete (includes)', () => {
     mockDelete = await prismock.blog.delete({ where: { title: 'blog-1' }, include: { posts: true } });
   });
 
-  it('Should delete a single element', () => {
+  it('Should delete a single element', ({ expect }) => {
     expect(omit(realDelete, ['imprint', 'userId', 'priority', 'category'])).toEqual({
       ...omit(seededBlogs[0], ['imprint', 'userId', 'priority', 'category']),
       id: realBlog1.id,
@@ -77,15 +71,15 @@ describe('delete (includes)', () => {
     });
   });
 
-  it('Should delete blog from stored data', async () => {
+  it('Should delete blog from stored data', async ({ expect }) => {
     const stored = await prisma.blog.findMany();
-    const mockStored = prismock.getData().blog;
+    const mockStored = (await prismock.getData()).blog;
 
     expect(stored).toEqual([realBlog2]);
     expect(mockStored).toEqual([mockBlog2]);
   });
 
-  it('Should delete posts from stored data', async () => {
+  it('Should delete posts from stored data', async ({ expect }) => {
     const stored = await prisma.post.findMany();
     const mockStored = await prismock.post.findMany();
 

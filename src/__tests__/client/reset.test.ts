@@ -1,23 +1,23 @@
 import { simulateSeed } from '../../../testing';
-import { createPrismock } from '../../lib/client';
-import { describe, it, expect, beforeAll } from "vitest"
+import { it, expect } from "vitest"
+import { describe } from "../../../testing/helpers"
 
-describe('client (reset)', () => {
+describe('client (reset)', ({ prismock }) => {
   it('Should reset data', async () => {
-    const prismock = await createPrismock()
+    await prismock.reset()
     await simulateSeed(prismock);
 
     const users = await prismock.user.findMany();
     expect(users.length > 0).toBeTruthy();
 
-    prismock.reset();
+    await prismock.reset();
 
     const usersAfterReset = await prismock.user.findMany();
     expect(usersAfterReset.length > 0).not.toBeTruthy();
   });
 
   it('Should reset with previous references', async () => {
-    const prismock = await createPrismock()
+    await prismock.reset()
     await simulateSeed(prismock);
 
     const users = await prismock.user.findMany();
@@ -25,7 +25,7 @@ describe('client (reset)', () => {
 
     const userService = prismock.user;
 
-    prismock.reset();
+    await prismock.reset();
 
     const usersAfterReset = await userService.findMany();
     expect(usersAfterReset.length > 0).not.toBeTruthy();
