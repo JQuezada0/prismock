@@ -4,7 +4,6 @@ import type * as runtime from "@prisma/client/runtime/library"
 import * as path from "path"
 import * as fs from "fs"
 
-import type { Delegate } from "./delegate"
 import { Data, Delegates, generateDelegates } from "./prismock"
 import { applyExtensions, type ExtensionsDefinition } from "./extensions"
 import { generateDMMF } from "./dmmf"
@@ -33,31 +32,32 @@ export type PrismockOptions = {
       }
 }
 
-export class Prismock<PC = PrismaClient> {
-  __prismaModule: PrismaModule<PC>
+export class Prismock {
+  schemaPath: string
 
-  protected constructor(prismaModule: PrismaModule<PC>) {
-    this.__prismaModule = prismaModule
+  protected constructor(schemaPath: string) {
+    this.schemaPath = schemaPath
     this.generate()
   }
 
-  static async create<PC = PrismaClient>(prismaModule: PrismaModule<PC>) {
-    return new Prismock<PC>(prismaModule) as unknown as PrismockClientType<PC>
+  static async create<PC = PrismaClient>(schemaPath: string) {
+    return new Prismock(schemaPath) as unknown as PrismockClientType<PC>
   }
 
-  static async createDefault() {
-    const { Prisma, PrismaClient } = await import("@prisma/client")
-
-    return new Prismock<InstanceType<typeof PrismaClient>>(Prisma) as unknown as PrismaClient & PrismockData
+  static async createDefault(schemaPath: string) {
+    return new Prismock(schemaPath) as unknown as PrismaClient & PrismockData
   }
 
-  reset() {
+  async reset() {
     this.generate()
   }
 
-  private generate() {
+  private async generate() {
+    const datamodel = await generateDMMF(this.schemaPath)
     const { delegates, setData, getData } = generateDelegates({
-      models: this.__prismaModule.dmmf.datamodel.models as DMMF.Model[],
+      models: [
+        ...datamodel.datamodel.models,
+      ],
     })
 
     Object.entries({ ...delegates, setData, getData }).forEach(([key, value]) => {
@@ -107,42 +107,6 @@ export class Prismock<PC = PrismaClient> {
 
     return args(this)
   }
-}
-
-export function generateClient<T = PrismaClient>(delegates: Record<string, Delegate>, getData: GetData, setData: SetData) {
-  // eslint-disable-next-line no-console
-  console.log(
-    "Deprecation notice: generatePrismock and generatePrismockSync should be replaced with PrismockClient. See https://github.com/morintd/prismock/blob/master/docs/generate-prismock-deprecated.md",
-  )
-
-  const client = {
-    $connect: () => Promise.resolve(),
-    $disconnect: () => Promise.resolve(),
-    $on: () => {},
-    $use: () => {},
-    $executeRaw: () => Promise.resolve(0),
-    $executeRawUnsafe: () => Promise.resolve(0),
-    $queryRaw: () => Promise.resolve([]),
-    $queryRawUnsafe: () => Promise.resolve([]),
-    getData,
-    setData,
-    ...delegates,
-  } as unknown as PrismockClientType<T>
-
-  return {
-    ...client,
-    $transaction: async (args: TransactionArgs<T>) => {
-      if (Array.isArray(args)) {
-        return Promise.all(args)
-      }
-
-      return args(client)
-    },
-  } as unknown as PrismockClientType<T>
-}
-
-export type PrismaModule<PC = PrismaClient> = {
-  dmmf: runtime.BaseDMMF
 }
 
 export function getPgLitePrismockData(options: {
@@ -234,7 +198,6 @@ export function getPgLitePrismockData(options: {
 }
 
 type GetClientOptions<PrismaClientClassType extends new (...args: any[]) => any> = {
-  prismaModule: PrismaModule<InstanceType<PrismaClientClassType>>
   prismaClient: PrismaClientClassType
   schemaPath: string
   usePgLite?: boolean | null | undefined
@@ -272,11 +235,10 @@ export async function getClient<
     return Object.assign(prisma, prismockData)
   }
 
-  return await Prismock.create(options.prismaModule)
+  return await Prismock.create<InstanceType<PrismaClientType>>(options.schemaPath)
 }
 
 type GetClientClassOptions<PrismaClientClassType extends new (...args: any[]) => any> = {
-  prismaModule: PrismaModule<InstanceType<PrismaClientClassType>>
   PrismaClient: PrismaClientClassType
   schemaPath: string
   usePgLite?: boolean | null | undefined
@@ -350,9 +312,9 @@ export async function getClientClass<PrismaClientType extends new (...args: any[
     return PrismaClientMocked as PrismaClientClassMocked<PrismaClientType>
   }
 
-  class PrismaClientMocked extends Prismock<InstanceType<PrismaClientType>> {
+  class PrismaClientMocked extends Prismock {
     protected constructor() {
-      super(options.prismaModule)
+      super(options.schemaPath)
     }
   }
 
@@ -360,10 +322,9 @@ export async function getClientClass<PrismaClientType extends new (...args: any[
 }
 
 export async function getDefaultClient() {
-  const { Prisma, PrismaClient } = await import("@prisma/client")
+  const { PrismaClient } = await import("@prisma/client")
 
   return await getClient({
-    prismaModule: Prisma,
     prismaClient: PrismaClient,
     schemaPath: "./prisma/schema.prisma",
     usePgLite: process.env.PRISMOCK_USE_PG_LITE ? true : undefined,
@@ -371,10 +332,9 @@ export async function getDefaultClient() {
 }
 
 export async function getDefaultClientClass() {
-  const { Prisma, PrismaClient } = await import("@prisma/client")
+  const { PrismaClient } = await import("@prisma/client")
 
   return await getClientClass({
-    prismaModule: Prisma,
     PrismaClient: PrismaClient,
     schemaPath: "./prisma/schema.prisma",
     usePgLite: process.env.PRISMOCK_USE_PG_LITE ? true : undefined,
