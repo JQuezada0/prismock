@@ -49,7 +49,7 @@ export class Prismock {
   }
 
   async reset() {
-    this.generate()
+    await this.generate()
   }
 
   private async generate() {
