@@ -43,12 +43,11 @@ $ bun add -E -D @pkgverse/prismock
 # Usage
 
 ```ts
-import { Prisma, PrismaClient } from "${your_prisma_client_directory}"
+import { PrismaClient } from "${your_prisma_client_directory}"
 import { getClient } from 'prismock';
 
 // Pass in the Prisma namespace, and manually define the type of your prisma client
 let mockedClient = await getClient({
-  prismaModule: Prisma,
   prismaClient: PrismaClient,
   schemaPath: "prisma/schema.prisma",
 })
@@ -64,12 +63,10 @@ That's it, prisma will be mocked in all your tests (tested with ViTest)
 If you're using prisma with postgres, you can optionally choose to have the mocked prisma client use PgLite for more 'true-to-life' tests.
 
 ```ts
-import { Prisma, PrismaClient } from "${your_prisma_client_directory}"
+import { PrismaClient } from "${your_prisma_client_directory}"
 import { getClient } from 'prismock';
 
-// Pass in the Prisma namespace, and manually define the type of your prisma client
 let mockedClient = await getClient({
-  prismaModule: Prisma,
   prismaClient: PrismaClient,
   schemaPath: "prisma/schema.prisma",
   usePgLite: true,
@@ -100,7 +97,6 @@ vi.mock('@prisma/client', async () => {
   return {
     ...actual,
     PrismaClient: await actualPrismock.getClientClass({
-      prismaModule: actual.Prisma,
       prismaClient: actual.PrismaClient,
       schemaPath: "prisma/schema.prisma",
     }),
@@ -113,11 +109,10 @@ vi.mock('@prisma/client', async () => {
 You can instantiate a `PrismockClient` directly and use it in your test, or pass it to a test version of your app.
 
 ```ts
-import { Prisma, PrismaClient } from '${your_prisma_client_directory}';
+import { PrismaClient } from '${your_prisma_client_directory}';
 import { getClient } from 'prismock';
 
 const client = await getClient({
-  prismaModule: Prisma,
   PrismaClient,
   schemaPath: "prisma/schema.prisma",
 });
