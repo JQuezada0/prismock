@@ -1,7 +1,7 @@
 # prismock
 
 [![npm](https://img.shields.io/npm/v/@pkgverse/prismock)](https://www.npmjs.com/package/@pkgverse/prismock)
-[![npm](https://img.shields.io/npm/dm/@pkgverse/prismock)](https://www.npmjs.com/package/prismock)
+[![npm](https://img.shields.io/npm/dm/@pkgverse/prismock)](https://www.npmjs.com/package/@pkgverse/prismock)
 
 ## NOTE
 Originally forked from https://github.com/morintd/prismock. This library is awesome, and I felt it could use some modernization to work with newer versions of prisma and add support for
