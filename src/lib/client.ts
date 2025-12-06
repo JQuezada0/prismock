@@ -34,18 +34,26 @@ export type PrismockOptions = {
 
 export class Prismock {
   schemaPath: string
+  private genPromise: Promise<void>
 
   protected constructor(schemaPath: string) {
     this.schemaPath = schemaPath
-    this.generate()
+    this.genPromise = this.generate()
   }
 
   static async create<PC = PrismaClient>(schemaPath: string) {
-    return new Prismock(schemaPath) as unknown as PrismockClientType<PC>
+    const p = new Prismock(schemaPath)
+
+    await p.genPromise
+
+    return p as unknown as PrismockClientType<PC>
   }
 
   static async createDefault(schemaPath: string) {
-    return new Prismock(schemaPath) as unknown as PrismaClient & PrismockData
+    const p = new Prismock(schemaPath)
+    await p.genPromise
+
+    return p as unknown as PrismaClient & PrismockData
   }
 
   async reset() {
@@ -67,7 +75,8 @@ export class Prismock {
   }
 
   async $connect() {
-    return Promise.resolve()
+    await this.genPromise
+    return this
   }
 
   $disconnect() {
