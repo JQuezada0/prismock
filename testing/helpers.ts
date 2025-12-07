@@ -1,4 +1,4 @@
-import { afterAll, it as vitestIt, describe as vitestDescribe, type SuiteFactory, expect as vitestExpect, type TestAPI } from "vitest"
+import { afterAll, it as vitestIt, describe as vitestDescribe, expect as vitestExpect, type TestAPI } from "vitest"
 import { PrismaClient } from "@prisma/client"
 import * as TestClients from "./client"
 import type { PrismockClientType } from "../src/lib/client"

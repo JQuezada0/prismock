@@ -11,7 +11,6 @@ describe('Example', async () => {
   
     const PrismaClient = await Client.getClientClass({
       PrismaClient: actualPrisma.PrismaClient,
-      prismaModule: actualPrisma.Prisma,
       schemaPath: "./prisma/schema.prisma",
       usePgLite: process.env.PRISMOCK_USE_PG_LITE ? true : undefined,
     })
