@@ -1,7 +1,7 @@
 {
   "name": "@pkgverse/prismock",
-  "version": "2.0.1-beta.9",
-  "description": "A mock for PrismaClient, dedicated to unit testing.",
+  "version": "2.0.1",
+  "description": "An in-memory implementation of PrismaClient, dedicated to unit testing.",
   "repository": {
     "url": "https://github.com/JQuezada0/prismock"
   },
@@ -24,7 +24,8 @@
     "test",
     "prisma",
     "in-memory",
-    "mock"
+    "mock",
+    "pglite"
   ],
   "prisma": {
     "seed": "tsx prisma/seed.ts"

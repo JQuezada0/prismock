@@ -5,8 +5,7 @@
 
 ## NOTE
 Originally forked from https://github.com/morintd/prismock. This library is awesome, and I felt it could use some modernization to work with newer versions of prisma and add support for
-client extensions. My current intention is to try to maintain this and stay up to speed with bug-fixes. The focus is ESM-first, so although both ESM and CJS exports are provided,
-I haven't personally tested the CJS functionality.
+client extensions. My current intention is to try to maintain this and stay up to speed with bug-fixes, contributions are welcome! The focus is ESM-first, so although both ESM and CJS exports are provided, I haven't personally tested the CJS functionality.
 
 ---
 
@@ -44,9 +43,9 @@ $ bun add -E -D @pkgverse/prismock
 
 ```ts
 import { PrismaClient } from "${your_prisma_client_directory}"
-import { getClient } from 'prismock';
+import { getClient } from '@pkgverse/prismock';
 
-// Pass in the Prisma namespace, and manually define the type of your prisma client
+// Pass in your PrismaClient class and the path to your schema
 let mockedClient = await getClient({
   prismaClient: PrismaClient,
   schemaPath: "prisma/schema.prisma",
@@ -64,7 +63,7 @@ If you're using prisma with postgres, you can optionally choose to have the mock
 
 ```ts
 import { PrismaClient } from "${your_prisma_client_directory}"
-import { getClient } from 'prismock';
+import { getClient } from '@pkgverse/prismock';
 
 let mockedClient = await getClient({
   prismaClient: PrismaClient,
@@ -83,16 +82,16 @@ The PgLite database is initialized by executing your migration history. It's cur
 as the schema file, i.e. the directory of the file path you pass in as `schemaPath`. If that's not the case, this will most likely fail.
 
 
-## PrismaClient
+## Mocking the PrismaClient module
 
-You can mock the PrismaClient directly in your test, or setupTests ([Example](https://github.com/JQuezada0/prismock/blob/beta/src/__tests__/client/example-prismock.test.ts)):
+You can mock the PrismaClient directly in your test, or setupTests ([Example](https://github.com/JQuezada0/prismock/blob/main/src/__tests__/client/example-prismock.test.ts)):
 
 ```ts
 import { vi } from "vitest"
 
 vi.mock('@prisma/client', async () => {
   const actual = await vi.importActual<typeof import("@prisma/client")>("@prisma/client")
-  const actualPrismock = await vi.importActual<typeof import("prismock")>("prismock")
+  const actualPrismock = await vi.importActual<typeof import("@pkgverse/prismock")>("@pkgverse/prismock")
 
   return {
     ...actual,
@@ -106,11 +105,11 @@ vi.mock('@prisma/client', async () => {
 
 ## Use prismock manually
 
-You can instantiate a `PrismockClient` directly and use it in your test, or pass it to a test version of your app.
+You can get an instantiated prisma client and pass it wherever you need to
 
 ```ts
 import { PrismaClient } from '${your_prisma_client_directory}';
-import { getClient } from 'prismock';
+import { getClient } from '@pkgverse/prismock';
 
 const client = await getClient({
   PrismaClient,
@@ -296,20 +295,6 @@ Basic groupBy queries are supported, including `having` and `orderBy`. `skip`, `
 - Replace item formatting with function composition
 - Restore test on `_count` for mongodb
 - Add custom client method for MongoDB (`$runCommandRaw`, `findRaw`, `aggregateRaw`)
-
-# Motivation
-
-While _Prisma_ is amazing, its `unit testing` section is treated as optional. On the other hand, it should be a priority for developers to write tests.
-
-As I love _Prisma_, I decided to create this package, in order to keep using it on real-world projects.
-
-I'm also a teacher and believe it's mandatory for students to learn about testing. I needed a similar solution for my [backend course](https://www.scalablebackend.com/), so I created my own.
-
-# Feature request
-
-I'm personally using this library in my day-to-day activities, and add features or fix bugs depending on my needs.
-
-If you need unsupported features or discover unwanted behaviors, feel free to open an issue, I'll take care of it.
 
 # Credit
 

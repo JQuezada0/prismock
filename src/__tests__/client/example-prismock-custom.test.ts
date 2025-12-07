@@ -10,7 +10,6 @@ vi.mock('@prisma-custom/client', async () => {
   return {
     ...actual,
     PrismaClient: await (await vi.importActual<typeof import('../../lib/client')>('../../lib/client')).getClientClass({
-      prismaModule: actual.Prisma,
       PrismaClient: actual.PrismaClient,
       schemaPath: "./prisma/schema.prisma",
       usePgLite: process.env.PRISMOCK_USE_PG_LITE ? true : false,
