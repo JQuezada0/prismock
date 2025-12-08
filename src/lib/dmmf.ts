@@ -1,20 +1,42 @@
-import type { DMMF } from '@prisma/generator-helper';
+import type { DMMF } from '@prisma/generator-helper-v7';
 import type { ConfigMetaFormat } from '@prisma/internals/dist/engine-commands/getConfig';
 import * as path from 'path';
 
-const PrismaInternals = await import('@prisma/internals');
-
-const { getDMMF, getSchemaWithPath, getConfig } = PrismaInternals.default;
-
 export async function generateDMMF(schemaPath?: string): Promise<DMMF.Document> {
   const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));
-  const datamodel = await getSchemaWithPath(pathToModule);
-  
-  return await getDMMF({ datamodel: datamodel.schemas })
+
+  return await (async () => {
+    if (PRISMA_MAJOR_VERSION === "6") {
+      const { getSchemaWithPath: getSchemaWithPathV6, getDMMF: getDMMFV6 } = await import("@prisma/internals-v6")
+      const schemas = await getSchemaWithPathV6(pathToModule)
+
+      return await getDMMFV6({ datamodel: schemas.schemas })
+    }
+
+    const { getSchemaWithPath: getSchemaWithPathV7, getDMMF: getDMMFV7 } = await import("@prisma/internals-v7")
+      const schema =  await getSchemaWithPathV7({
+        schemaPath: {
+          configProvidedPath: pathToModule,
+        }
+      })
+
+      return await getDMMFV7({ datamodel: schema.schemas })
+  })()
 }
 
 export async function generateConfig(schemaPath: string): Promise<ConfigMetaFormat> {
-  const datamodel = await getSchemaWithPath(schemaPath);
-  const config = await getConfig({ datamodel: datamodel.schemas });
-  return config
+  if (PRISMA_MAJOR_VERSION === "6") {
+    const { getSchemaWithPath: getSchemaWithPathV6, getConfig: getConfigV6 } = await import("@prisma/internals-v6")
+    const schemas = await getSchemaWithPathV6(schemaPath)
+    return await getConfigV6({ datamodel: schemas.schemas })
+  }
+
+  const { getSchemaWithPath: getSchemaWithPathV7, getConfig: getConfigV7 } = await import("@prisma/internals-v7")
+  const schema = await getSchemaWithPathV7({
+    schemaPath: {
+      configProvidedPath: schemaPath,
+    }
+  })
+
+  return await getConfigV7({ datamodel: schema.schemas })
 }

@@ -9,15 +9,27 @@
   "license": "MIT",
   "packageManager": "bun@1.2.16",
   "type": "module",
-  "main": "./dist/index.cjs",
+  "main": "./dist/v6/index.cjs",
   "types": "./dist/index.d.ts",
-  "module": "./dist/index.mjs",
+  "module": "./dist/v6/index.mjs",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.mjs"
+      "import": "./dist/v6/index.mjs",
+      "require": "./dist/v6/index.cjs",
+      "default": "./dist/v6/index.mjs"
+    },
+    "./v6": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/v6/index.mjs",
+      "require": "./dist/v6/index.cjs",
+      "default": "./dist/v6/index.mjs"
+    },
+    "./v7": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/v7/index.mjs",
+      "require": "./dist/v7/index.cjs",
+      "default": "./dist/v7/index.mjs"
     }
   },
   "keywords": [
@@ -31,9 +43,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "scripts": {
-    "build": "bun build:main & bun build:module & bun build:types",
-    "build:main": "bun build src/index.ts --outfile=dist/index.cjs --format=cjs --target=node --external=@prisma/*",
-    "build:module": "bun run build.ts",
+    "build": "bun run build.ts & bun build:types",
     "build:types": "tsgo -p tsconfig.json",
     "lint": "eslint",
     "test": "vitest",
@@ -93,12 +103,16 @@
     "vitest-mock-extended": "3.1.0"
   },
   "dependencies": {
+    "@electric-sql/pglite": "0.3.14",
     "@paralleldrive/cuid2": "2.2.2",
     "@prisma/generator-helper": "6.12.0",
-    "@prisma/internals": "6.12.0",
-    "@electric-sql/pglite": "0.3.14",
-    "pglite-prisma-adapter": "0.6.1",
-    "bson": "6.10.4"
+    "@prisma/generator-helper-v6": "npm:@prisma/generator-helper@6.12.0",
+    "@prisma/generator-helper-v7": "npm:@prisma/generator-helper@7.1.0",
+    "@prisma/internals": "7.1.0",
+    "@prisma/internals-v6": "npm:@prisma/internals@6.12.0",
+    "@prisma/internals-v7": "npm:@prisma/internals@7.1.0",
+    "bson": "6.10.4",
+    "pglite-prisma-adapter": "0.6.1"
   },
   "peerDependencies": {
     "@prisma/client": ">= 6.10.0",

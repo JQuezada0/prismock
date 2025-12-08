@@ -119,6 +119,22 @@ const client = await getClient({
 
 Then, you will be able to write your tests as if your app was using an in-memory Prisma client.
 
+## Using with Prisma v7
+
+The prisma schema went through breaking changes going from v6 -> v7.
+
+You can import from the `v6` or `v7` package subpaths depending on which major version of prisma you're on.
+
+```ts
+import { PrismaClient } from '${your_prisma_client_directory}';
+import { getClient } from '@pkgverse/prismock/v7';
+
+const client = await getClient({
+  PrismaClient,
+  schemaPath: "prisma/schema.prisma",
+});
+```
+
 ## Use with decimal.js
 
 See [use with decimal.js](https://github.com/morintd/prismock/blob/master/docs/use-with-decimal-js.md).

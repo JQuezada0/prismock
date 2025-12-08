@@ -20,14 +20,14 @@ export default defineConfig(async function () {
         '@prisma-custom/client': prismaCustomClientPath,
       },
       maxWorkers: processorCount,
-      // sequence: {
-      //   concurrent: provider === "postgresql",
-      // },
     },
     resolve: {
       alias: {
         '@prisma-custom/client': prismaCustomClientPath,
       }
+    },
+    define: {
+      PRISMA_MAJOR_VERSION: `"6"`,
     },
   }
 })

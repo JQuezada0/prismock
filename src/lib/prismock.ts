@@ -1,7 +1,6 @@
 import * as path from 'path';
 
-import { DMMF, type ActiveConnectorType } from '@prisma/generator-helper';
-import type { Generator } from '@prisma/internals';
+import type { DMMF, ActiveConnectorType } from '@prisma/generator-helper';
 
 import { isAutoIncrement } from './operations';
 import { Delegate, DelegateProperties, generateDelegate, Item } from './delegate';
@@ -22,10 +21,6 @@ export async function fetchProvider(schemaPath?: string): Promise<ActiveConnecto
   const config = await generateConfig(pathToModule);
 
   return config.datasources[0].activeProvider
-}
-
-export function getProvider(generator: Generator) {
-  return generator.options?.datasources[0].activeProvider;
 }
 
 export function generateDelegates(options: OptionsSync) {
