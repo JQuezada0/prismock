@@ -1,5 +1,5 @@
 import type { PrismaClient } from "@prisma/client"
-import type { DMMF } from "@prisma/generator-helper"
+import type { DMMF } from "@prisma/generator-helper-v7"
 import type * as runtime from "@prisma/client/runtime/library"
 import * as path from "path"
 import * as fs from "fs"
@@ -210,10 +210,11 @@ type GetClientOptions<PrismaClientClassType extends new (...args: any[]) => any>
   prismaClient: PrismaClientClassType
   schemaPath: string
   usePgLite?: boolean | null | undefined
+  clientOptions?: Record<string, any>
 }
 
 export async function getClient<
-  PrismaClientType extends new (options: { adapter?: runtime.SqlDriverAdapterFactory | null }, ...args: any[]) => any,
+  PrismaClientType extends new (...args: any[]) => any,
 >(options: GetClientOptions<PrismaClientType>): Promise<PrismockClientType<InstanceType<PrismaClientType>>> {
   const datamodel = await generateDMMF(options.schemaPath)
 
@@ -229,6 +230,7 @@ export async function getClient<
 
     const prisma = new options.prismaClient({
       adapter,
+      ...options.clientOptions,
     })
 
     const prismockData = getPgLitePrismockData({

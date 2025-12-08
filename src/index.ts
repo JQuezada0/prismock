@@ -1,1 +1,3 @@
 export { createPrismock, Prismock, PrismockClientType, getClient, getClientClass, getDefaultClient, getDefaultClientClass } from './lib/client';
+
+import type {} from "./types"

@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from "@prisma/client"
+import { PrismaClient } from "@prisma/client"
 import * as fs from "fs"
 import * as path from "path"
 import { getClient, getPgLitePrismockData } from "../src/lib/client"
@@ -67,10 +67,9 @@ export async function createPgLitePrismockClient(options: CreatePrismaClientOpti
 }
 
 export async function createPrismockClient(options: CreatePrismaClientOptionsInput = {}) {
-  const { Prisma, PrismaClient } = await import("@prisma/client")
+  const { PrismaClient } = await import("@prisma/client")
 
   return await getClient({
-    prismaModule: Prisma,
     prismaClient: PrismaClient,
     schemaPath: "./prisma/schema.prisma",
     usePgLite: false,
