@@ -7,13 +7,13 @@ export async function generateDMMF(schemaPath?: string): Promise<DMMF.Document> 
 
   return await (async () => {
     if (PRISMA_MAJOR_VERSION === "6") {
-      const { getSchemaWithPath: getSchemaWithPathV6, getDMMF: getDMMFV6 } = await import("@prisma/internals-v6")
+      const { getSchemaWithPath: getSchemaWithPathV6, getDMMF: getDMMFV6 } = (await import("@prisma/internals-v6")).default
       const schemas = await getSchemaWithPathV6(pathToModule)
 
       return await getDMMFV6({ datamodel: schemas.schemas })
     }
 
-    const { getSchemaWithPath: getSchemaWithPathV7, getDMMF: getDMMFV7 } = await import("@prisma/internals-v7")
+    const { getSchemaWithPath: getSchemaWithPathV7, getDMMF: getDMMFV7 } = (await import("@prisma/internals-v7")).default
       const schema =  await getSchemaWithPathV7({
         schemaPath: {
           configProvidedPath: pathToModule,
@@ -26,12 +26,12 @@ export async function generateDMMF(schemaPath?: string): Promise<DMMF.Document> 
 
 export async function generateConfig(schemaPath: string): Promise<ConfigMetaFormat> {
   if (PRISMA_MAJOR_VERSION === "6") {
-    const { getSchemaWithPath: getSchemaWithPathV6, getConfig: getConfigV6 } = await import("@prisma/internals-v6")
+    const { getSchemaWithPath: getSchemaWithPathV6, getConfig: getConfigV6 } = (await import("@prisma/internals-v6")).default
     const schemas = await getSchemaWithPathV6(schemaPath)
     return await getConfigV6({ datamodel: schemas.schemas })
   }
 
-  const { getSchemaWithPath: getSchemaWithPathV7, getConfig: getConfigV7 } = await import("@prisma/internals-v7")
+  const { getSchemaWithPath: getSchemaWithPathV7, getConfig: getConfigV7 } = (await import("@prisma/internals-v7")).default
   const schema = await getSchemaWithPathV7({
     schemaPath: {
       configProvidedPath: schemaPath,
