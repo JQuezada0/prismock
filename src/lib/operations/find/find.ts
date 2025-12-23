@@ -1,4 +1,4 @@
-import { DMMF } from '@prisma/generator-helper';
+import type { DMMF } from '@prisma/generator-helper';
 
 import { FindArgs, GroupByFieldArg, Order, OrderedValue } from '../../types';
 import { Delegate, DelegateProperties, Item } from '../../delegate';

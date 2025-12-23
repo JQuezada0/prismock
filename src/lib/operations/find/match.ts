@@ -1,5 +1,5 @@
-import { Prisma } from '@prisma/client';
-import { DMMF } from '@prisma/client/runtime/library';
+import type { Prisma } from '@prisma/client';
+import type { DMMF } from '@prisma/client/runtime/library';
 
 import { Delegate, Item } from '../../delegate';
 import { camelize, shallowCompare } from '../../helpers';

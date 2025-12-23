@@ -1,5 +1,7 @@
-import { Prisma, type PrismaClient } from "@prisma/client"
-import { DMMF, type DefaultArgs, type DynamicResultExtensionArgs, type ExtendsHook, type ModelKey } from "@prisma/client/runtime/library"
+import type { Prisma, PrismaClient } from "@prisma/client"
+import type { DefaultArgs, DynamicResultExtensionArgs, ExtendsHook, ModelKey } from "@prisma/client/runtime/library"
+import type { DMMF } from "@prisma/generator-helper-v7"
+import type { PrismaDMMF } from "../globals"
 
 type ModelMap = {
   [K in Prisma.TypeMap["meta"]["modelProps"]]: Prisma.TypeMap["model"][ModelKey<
@@ -20,6 +22,7 @@ function buildResultExtendedModel<ModelName extends keyof ModelMap>(
   },
   modelExtensions: ResultExtensionModelMap[ModelName],
   modelName: ModelName,
+  PrismaDMMF: PrismaDMMF,
 ): PrismaClient[ModelName] {
   const model = proxiedModels[modelName] ?? client[modelName]
 
@@ -28,19 +31,19 @@ function buildResultExtendedModel<ModelName extends keyof ModelMap>(
   }
 
   const singleResultActions = [
-    DMMF.ModelAction.findFirst,
-    DMMF.ModelAction.findFirstOrThrow,
-    DMMF.ModelAction.findUnique,
-    DMMF.ModelAction.findUniqueOrThrow,
-    DMMF.ModelAction.create,
-    DMMF.ModelAction.update,
-    DMMF.ModelAction.upsert,
+    PrismaDMMF.ModelAction.findFirst,
+    PrismaDMMF.ModelAction.findFirstOrThrow,
+    PrismaDMMF.ModelAction.findUnique,
+    PrismaDMMF.ModelAction.findUniqueOrThrow,
+    PrismaDMMF.ModelAction.create,
+    PrismaDMMF.ModelAction.update,
+    PrismaDMMF.ModelAction.upsert,
   ] as const
 
   const multipleResultActions = [
-    DMMF.ModelAction.findMany,
-    DMMF.ModelAction.createManyAndReturn,
-    // DMMF.ModelAction.updateManyAndReturn,
+    PrismaDMMF.ModelAction.findMany,
+    PrismaDMMF.ModelAction.createManyAndReturn,
+    // PrismaDMMF.ModelAction.updateManyAndReturn,
   ] as const
 
   const allResultActions = [...singleResultActions, ...multipleResultActions] as const
@@ -158,6 +161,8 @@ function buildResultExtendedModel<ModelName extends keyof ModelMap>(
 export function applyResultExtensions(
   client: PrismaClient,
   extensions: Parameters<ExtendsHook<"define", Prisma.TypeMapCb, DefaultArgs>>[0],
+  datamodel: DMMF.Document,
+  PrismaDMMF: PrismaDMMF,
 ): PrismaClient {
   if (typeof extensions === "function") {
     type ExtendableClient = Parameters<typeof extensions>[0]
@@ -191,6 +196,7 @@ export function applyResultExtensions(
       proxiedModels,
       resultExtendedModelMap[modelName],
       modelName,
+      PrismaDMMF,
     )
 
     proxiedModels[modelName] = proxiedModel
@@ -214,7 +220,7 @@ export function applyResultExtensions(
     // TODO
     // const allModelsExtension = resultExtendedModelMap["$allModels"]
 
-    for (const model of Prisma.dmmf.datamodel.models) {
+    for (const model of datamodel.datamodel.models) {
       const modelName = model.name
 
       if (!(modelName in client)) {
@@ -226,8 +232,9 @@ export function applyResultExtensions(
         proxiedModels,
         resultExtendedModelMap["$allModels"],
         modelName as Prisma.TypeMap["meta"]["modelProps"],
+        PrismaDMMF,
       )
-      
+
       proxiedModels[modelName as keyof typeof proxiedModels] = proxiedModel as any
     }
   }

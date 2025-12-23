@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
 export type SelectArgs = Record<string, boolean | Record<string, boolean>>;
 
