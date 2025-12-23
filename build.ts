@@ -18,6 +18,10 @@ async function buildEsm(prismaMajorVersion: "6" | "7") {
           if (args.path.endsWith('.json')) {
             return null; // default handling = bundle it
           }
+
+          if (args.path.includes("@prisma/client-runtime-utils") || args.path.includes("@prisma/dmmf")) {
+            return null
+          }
   
           return { path: args.path, external: true };
         });

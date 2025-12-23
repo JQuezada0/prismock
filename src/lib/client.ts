@@ -41,7 +41,12 @@ export class Prismock {
 
   protected constructor(schemaPath: string) {
     this.schemaPath = schemaPath
-    this.genPromise = this.generate()
+    this.genPromise = this.generate().then(({ datamodel, PrismaDMMF }) => {
+      this.datamodel = datamodel
+      this.PrismaDMMF = PrismaDMMF
+
+      return { datamodel, PrismaDMMF }
+    })
   }
 
   static async create<PC = PrismaClient>(schemaPath: string) {

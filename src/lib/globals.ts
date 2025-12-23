@@ -5,15 +5,15 @@ export async function getGlobals() {
 
   const DMMF = await (async () => {
     if (PRISMA_MAJOR_VERSION === "7") {
-      return (await import("@prisma/dmmf-v7")).default
+      return (await import("@prisma/dmmf-v7"))
     }
 
-    return (await import("@prisma/dmmf-v6")).default
+    return (await import("@prisma/dmmf-v6"))
   })()
 
   return {
     PrismaClientKnownRequestError,
     Decimal,
-    DMMF,
+    DMMF: DMMF as unknown as (typeof import("@prisma/dmmf-v6") | typeof import("@prisma/dmmf-v7")),
   }
 }

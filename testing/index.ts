@@ -17,6 +17,7 @@ export const seededReactions = [
 ];
 
 export async function simulateSeed(prisma: PrismaClient) {
+  await prisma.$connect()
   await prisma.user.createMany({ data: seededUsers.map(({ id, ...user }) => user) });
   await prisma.blog.createMany({ data: seededBlogs.map(({ id, ...blog }) => blog) });
   await prisma.post.createMany({ data: seededPosts.map(({ id, ...post }) => post) });
