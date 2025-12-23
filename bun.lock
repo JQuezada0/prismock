@@ -6,6 +6,9 @@
       "dependencies": {
         "@electric-sql/pglite": "0.3.14",
         "@paralleldrive/cuid2": "2.2.2",
+        "@prisma/client-runtime-utils": "npm:@prisma/client-runtime-utils@7.1.0",
+        "@prisma/dmmf-v6": "npm:@prisma/dmmf@6.12.0",
+        "@prisma/dmmf-v7": "npm:@prisma/dmmf@7.1.0",
         "@prisma/generator-helper": "6.12.0",
         "@prisma/generator-helper-v6": "npm:@prisma/generator-helper@6.12.0",
         "@prisma/generator-helper-v7": "npm:@prisma/generator-helper@7.1.0",
@@ -431,11 +434,17 @@
 
     "@prisma/client": ["@prisma/client@6.12.0", "", { "peerDependencies": { "prisma": "*", "typescript": ">=5.1.0" }, "optionalPeers": ["prisma", "typescript"] }, "sha512-wn98bJ3Cj6edlF4jjpgXwbnQIo/fQLqqQHPk2POrZPxTlhY3+n90SSIF3LMRVa8VzRFC/Gec3YKJRxRu+AIGVA=="],
 
+    "@prisma/client-runtime-utils": ["@prisma/client-runtime-utils@7.1.0", "", {}, "sha512-39xmeBrNTN40FzF34aJMjfX1PowVCqoT3UKUWBBSP3aXV05NRqGBC3x2wCDs96ti6ZgdiVzqnRDHtbzU8X+lPQ=="],
+
     "@prisma/config": ["@prisma/config@6.12.0", "", { "dependencies": { "jiti": "2.4.2" } }, "sha512-HovZWzhWEMedHxmjefQBRZa40P81N7/+74khKFz9e1AFjakcIQdXgMWKgt20HaACzY+d1LRBC+L4tiz71t9fkg=="],
 
     "@prisma/debug": ["@prisma/debug@6.12.0", "", {}, "sha512-plbz6z72orcqr0eeio7zgUrZj5EudZUpAeWkFTA/DDdXEj28YHDXuiakvR6S7sD6tZi+jiwQEJAPeV6J6m/tEQ=="],
 
     "@prisma/dmmf": ["@prisma/dmmf@6.12.0", "", {}, "sha512-vL8zy61mi9Mv+w5qLvtF9hrhGu4rUZqhSpWWTxx1nengr1Wi7JfKkjJGBiCT79hSurq3oMC71iGAScyqwvi4Fg=="],
+
+    "@prisma/dmmf-v6": ["@prisma/dmmf@6.12.0", "", {}, "sha512-vL8zy61mi9Mv+w5qLvtF9hrhGu4rUZqhSpWWTxx1nengr1Wi7JfKkjJGBiCT79hSurq3oMC71iGAScyqwvi4Fg=="],
+
+    "@prisma/dmmf-v7": ["@prisma/dmmf@7.1.0", "", {}, "sha512-O4F5aaACdqpJKDEUOhArLfqaIJmiR3DtZ9gT0aMw+em+CBYD9z+mj6u1RQDdb4FJu60TN9ABDiVZLh4Nbf+stw=="],
 
     "@prisma/driver-adapter-utils": ["@prisma/driver-adapter-utils@7.1.0", "", { "dependencies": { "@prisma/debug": "7.1.0" } }, "sha512-AlVLzeXkw81+47MvQ9M8DvTiHkRfJ8xzklTbYjpskb0cTTDVHboTI/OVwT6Wcep/bNvfLKJYO0nylBiM5rxgww=="],
 

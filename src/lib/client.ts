@@ -10,6 +10,7 @@ import { generateDMMF } from "./dmmf"
 import { camelize } from "./helpers"
 import type { PGlite } from "@electric-sql/pglite"
 import type { PrismaPGlite } from "pglite-prisma-adapter"
+import { getGlobals, type PrismaDMMF } from "./globals"
 
 type GetData = () => Promise<Data>
 type SetData = (data: Data) => Promise<void>
@@ -34,7 +35,9 @@ export type PrismockOptions = {
 
 export class Prismock {
   schemaPath: string
-  private genPromise: Promise<void>
+  datamodel?: DMMF.Document
+  PrismaDMMF?: PrismaDMMF
+  private genPromise: Promise<{ datamodel: DMMF.Document, PrismaDMMF: PrismaDMMF }>
 
   protected constructor(schemaPath: string) {
     this.schemaPath = schemaPath
@@ -44,14 +47,20 @@ export class Prismock {
   static async create<PC = PrismaClient>(schemaPath: string) {
     const p = new Prismock(schemaPath)
 
-    await p.genPromise
+    const { datamodel, PrismaDMMF } = await p.genPromise
+
+    p.datamodel = datamodel
+    p.PrismaDMMF = PrismaDMMF
 
     return p as unknown as PrismockClientType<PC>
   }
 
   static async createDefault(schemaPath: string) {
     const p = new Prismock(schemaPath)
-    await p.genPromise
+
+    const { datamodel, PrismaDMMF } = await p.genPromise
+    p.datamodel = datamodel
+    p.PrismaDMMF = PrismaDMMF
 
     return p as unknown as PrismaClient & PrismockData
   }
@@ -62,7 +71,7 @@ export class Prismock {
 
   private async generate() {
     const datamodel = await generateDMMF(this.schemaPath)
-    const { delegates, setData, getData } = generateDelegates({
+    const { delegates, setData, getData } = await generateDelegates({
       models: [
         ...datamodel.datamodel.models,
       ],
@@ -72,6 +81,10 @@ export class Prismock {
       if (key in this) Object.assign((this as unknown as Delegates)[key], value)
       else Object.assign(this, { [key]: value })
     })
+
+    const { DMMF: PrismaDMMF } = await getGlobals()
+
+    return { datamodel, PrismaDMMF }
   }
 
   async $connect() {
@@ -106,7 +119,15 @@ export class Prismock {
   }
 
   $extends(extensionDefs: ExtensionsDefinition) {
-    return applyExtensions(this as unknown as PrismaClient, extensionDefs)
+    if (!this.datamodel) {
+      throw new Error("Datamodel not loaded")
+    }
+
+    if (!this.PrismaDMMF) {
+      throw new Error("PrismaDMMF not loaded")
+    }
+
+    return applyExtensions(this as unknown as PrismaClient, extensionDefs, this.datamodel, this.PrismaDMMF)
   }
 
   async $transaction(args: any) {
