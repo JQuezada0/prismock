@@ -1,10 +1,10 @@
 import { version as clientVersion } from '@prisma/client/package.json';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { DMMF } from '@prisma/generator-helper';
+import type { DMMF } from '@prisma/generator-helper';
 
 import { AggregateArgs, CreateArgs, CreateManyArgs, FindArgs, GroupByArgs, UpsertArgs } from './types';
 import { DeleteArgs, create, findOne, findMany, deleteMany, UpdateArgs, updateMany, aggregate, groupBy } from './operations';
 import { Data, Delegates, Properties } from './prismock';
+import { getGlobals } from './globals';
 
 export type Item = Record<string, unknown>;
 
@@ -41,14 +41,16 @@ export type DelegateContext = {
   properties: Record<string, DelegateProperties>;
 };
 
-export function generateDelegate(
+export async function generateDelegate(
   model: DMMF.Model,
   data: Data,
   name: string,
   properties: Properties,
   delegates: Delegates,
   onChange: (items: Item[]) => void,
-): Delegate {
+): Promise<Delegate> {
+  const { PrismaClientKnownRequestError } = await getGlobals()
+
   const delegate = {} as Delegate;
 
   Object.assign(delegate, {

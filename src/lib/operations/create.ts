@@ -1,7 +1,7 @@
-import { Decimal } from '@prisma/client/runtime/library';
-import { DMMF } from '@prisma/generator-helper';
+import type { DMMF } from '@prisma/generator-helper';
 import { ObjectId } from 'bson';
 import { createId as createCuid } from '@paralleldrive/cuid2';
+import { Decimal } from "@prisma/client-runtime-utils"
 
 import { Delegate, DelegateProperties, Item } from '../delegate';
 import { pipe, removeUndefined, uuid } from '../helpers';
