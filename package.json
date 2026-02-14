@@ -1,6 +1,6 @@
 {
   "name": "@pkgverse/prismock",
-  "version": "2.0.5-beta.4",
+  "version": "2.0.6-beta.0",
   "description": "An in-memory implementation of PrismaClient, dedicated to unit testing.",
   "repository": {
     "url": "https://github.com/JQuezada0/prismock"
