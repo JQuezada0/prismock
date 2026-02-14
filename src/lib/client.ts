@@ -3,6 +3,8 @@ import type { DMMF } from "@prisma/generator-helper-v7"
 import type * as runtime from "@prisma/client/runtime/library"
 import * as path from "path"
 import * as fs from "fs"
+import type { DMMF as DMMFV7 } from '@prisma/generator-helper-v7';
+import type { DMMF as DMMFV6 } from '@prisma/generator-helper-v6';
 
 import { Data, Delegates, generateDelegates } from "./prismock"
 import { applyExtensions, type ExtensionsDefinition } from "./extensions"
@@ -35,9 +37,9 @@ export type PrismockOptions = {
 
 export class Prismock {
   schemaPath: string
-  datamodel?: DMMF.Document
+  datamodel?: DMMFV7.Document | DMMFV6.Document
   PrismaDMMF?: PrismaDMMF
-  private genPromise: Promise<{ datamodel: DMMF.Document, PrismaDMMF: PrismaDMMF }>
+  private genPromise: Promise<{ datamodel: DMMFV7.Document | DMMFV6.Document, PrismaDMMF: PrismaDMMF }>
 
   protected constructor(schemaPath: string) {
     this.schemaPath = schemaPath
@@ -148,7 +150,7 @@ export function getPgLitePrismockData(options: {
   schemaPath: string
   pglite: InstanceType<typeof PGlite>
   adapter: InstanceType<typeof PrismaPGlite>
-  datamodel: DMMF.Document
+  datamodel: DMMFV7.Document | DMMFV6.Document
   prismaClient: Record<string, any>
 }) {
   const schemaPathDir = path.dirname(options.schemaPath)
@@ -299,7 +301,7 @@ export async function getClientClass<PrismaClientType extends new (...args: any[
     class PrismaClientMocked extends options.PrismaClient {
       pglite: InstanceType<typeof PGlite>
       adapter: InstanceType<typeof PrismaPGlite>
-      datamodel: DMMF.Document
+      datamodel: DMMFV7.Document | DMMFV6.Document
       prismockData: PrismockData
 
       constructor(...args: any[]) {

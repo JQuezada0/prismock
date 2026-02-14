@@ -1,8 +1,9 @@
-import type { DMMF } from '@prisma/generator-helper-v7';
+import type { DMMF as DMMFV7 } from '@prisma/generator-helper-v7';
+import type { DMMF as DMMFV6 } from '@prisma/generator-helper-v6';
 import type { ConfigMetaFormat } from '@prisma/internals/dist/engine-commands/getConfig';
 import * as path from 'path';
 
-export async function generateDMMF(schemaPath?: string): Promise<DMMF.Document> {
+export async function generateDMMF(schemaPath?: string): Promise<DMMFV7.Document | DMMFV6.Document> {
   const pathToModule = schemaPath ?? require.resolve(path.resolve(process.cwd(), 'prisma/schema.prisma'));
 
   return await (async () => {
