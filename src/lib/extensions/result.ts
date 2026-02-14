@@ -1,6 +1,8 @@
 import type { Prisma, PrismaClient } from "@prisma/client"
 import type { DefaultArgs, DynamicResultExtensionArgs, ExtendsHook, ModelKey } from "@prisma/client/runtime/library"
-import type { DMMF } from "@prisma/generator-helper-v7"
+import type { DMMF as DMMFV7 } from "@prisma/generator-helper-v7"
+import type { DMMF as DMMFV6 } from "@prisma/generator-helper-v6"
+
 import type { PrismaDMMF } from "../globals"
 
 type ModelMap = {
@@ -49,7 +51,7 @@ function buildResultExtendedModel<ModelName extends keyof ModelMap>(
   const allResultActions = [...singleResultActions, ...multipleResultActions] as const
   type ProxiedActions = `${(typeof allResultActions)[number]}`
 
-  const proxyMethod = <M extends keyof PrismaClient[ModelName] | DMMF.ModelAction>(actionName: M) => {
+  const proxyMethod = <M extends keyof PrismaClient[ModelName] | DMMFV7.ModelAction | DMMFV6.ModelAction>(actionName: M) => {
     if (!(actionName in model)) {
       return () => null
     }
@@ -161,7 +163,7 @@ function buildResultExtendedModel<ModelName extends keyof ModelMap>(
 export function applyResultExtensions(
   client: PrismaClient,
   extensions: Parameters<ExtendsHook<"define", Prisma.TypeMapCb, DefaultArgs>>[0],
-  datamodel: DMMF.Document,
+  datamodel: DMMFV7.Document | DMMFV6.Document,
   PrismaDMMF: PrismaDMMF,
 ): PrismaClient {
   if (typeof extensions === "function") {
