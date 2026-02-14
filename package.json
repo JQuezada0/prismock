@@ -1,6 +1,6 @@
 {
   "name": "@pkgverse/prismock",
-  "version": "2.0.5",
+  "version": "2.0.5-beta.4",
   "description": "An in-memory implementation of PrismaClient, dedicated to unit testing.",
   "repository": {
     "url": "https://github.com/JQuezada0/prismock"
@@ -106,15 +106,15 @@
   "dependencies": {
     "@electric-sql/pglite": "0.3.14",
     "@paralleldrive/cuid2": "2.2.2",
-    "@prisma/client-runtime-utils": "npm:@prisma/client-runtime-utils@7.1.0",
+    "@prisma/client-runtime-utils": "npm:@prisma/client-runtime-utils@7.4.0",
     "@prisma/dmmf-v6": "npm:@prisma/dmmf@6.12.0",
-    "@prisma/dmmf-v7": "npm:@prisma/dmmf@7.1.0",
+    "@prisma/dmmf-v7": "npm:@prisma/dmmf@7.4.0",
     "@prisma/generator-helper": "6.12.0",
     "@prisma/generator-helper-v6": "npm:@prisma/generator-helper@6.12.0",
-    "@prisma/generator-helper-v7": "npm:@prisma/generator-helper@7.1.0",
-    "@prisma/internals": "7.1.0",
+    "@prisma/generator-helper-v7": "npm:@prisma/generator-helper@7.4.0",
+    "@prisma/internals": "7.4.0",
     "@prisma/internals-v6": "npm:@prisma/internals@6.12.0",
-    "@prisma/internals-v7": "npm:@prisma/internals@7.1.0",
+    "@prisma/internals-v7": "npm:@prisma/internals@7.4.0",
     "bson": "6.10.4",
     "pglite-prisma-adapter": "0.6.1"
   },
