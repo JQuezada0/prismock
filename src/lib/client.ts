@@ -159,7 +159,7 @@ export function getPgLitePrismockData(options: {
     withFileTypes: true
   })
 
-  const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory())
+  const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory()).sort((a, b) => a.name.localeCompare(b.name));
 
   const connectionPromise = options.adapter.connect()
 
@@ -170,6 +170,14 @@ export function getPgLitePrismockData(options: {
       DROP SCHEMA public CASCADE;
       CREATE SCHEMA public;
     `)
+
+    await connection.executeScript(`
+      DO $$ BEGIN
+        CREATE ROLE postgres WITH LOGIN SUPERUSER;
+      EXCEPTION
+        WHEN duplicate_object THEN NULL;
+      END $$;
+    `);
 
     for (const migration of migrationsDir) {
       const migrationPath = path.join(migrationsPath, migration.name, "migration.sql")
@@ -234,10 +242,40 @@ export function getPgLitePrismockData(options: {
   } satisfies PrismockData
 }
 
+async function loadPgliteContribExtensions(
+  extensionNames?: string[],
+): Promise<Record<string, unknown> | undefined> {
+  if (extensionNames === undefined || extensionNames.length === 0) {
+    return undefined
+  }
+
+  const extensions: Record<string, unknown> = {}
+
+  for (const name of extensionNames) {
+    const mod = (await import(
+      `@electric-sql/pglite/contrib/${name}`
+    )) as Record<string, unknown>
+    const ext = mod[name] ?? mod.default
+    if (ext === undefined) {
+      throw new Error(
+        `PGlite contrib "${name}": expected named export "${name}" or a default export`,
+      )
+    }
+    extensions[name] = ext
+  }
+
+  return extensions
+}
+
 type GetClientOptions<PrismaClientClassType extends new (...args: any[]) => any> = {
   prismaClient: PrismaClientClassType
   schemaPath: string
   usePgLite?: boolean | null | undefined
+  /**
+   * When `usePgLite` is true, contrib extension module names to load from
+   * `@electric-sql/pglite/contrib/<name>`. Omit or pass `[]` to load none.
+   */
+  pgLiteExtensions?: string[]
   clientOptions?: Record<string, any>
 }
 
@@ -249,10 +287,12 @@ export async function getClient<
   if (options.usePgLite) {
     const { PGlite } = await import("@electric-sql/pglite")
     const { PrismaPGlite } = await import("pglite-prisma-adapter")
+    const contribExtensions = await loadPgliteContribExtensions(options.pgLiteExtensions)
 
     const pglite = new PGlite("memory://", {
       relaxedDurability: true,
       initialMemory: 1024 * 1024 * 1024, // 1GB
+      ...(contribExtensions && { extensions: contribExtensions }),
     })
     const adapter = new PrismaPGlite(pglite)
 
@@ -281,6 +321,11 @@ type GetClientClassOptions<PrismaClientClassType extends new (...args: any[]) =>
   PrismaClient: PrismaClientClassType
   schemaPath: string
   usePgLite?: boolean | null | undefined
+  /**
+   * When `usePgLite` is true, contrib extension module names to load from
+   * `@electric-sql/pglite/contrib/<name>`. Omit or pass `[]` to load none.
+   */
+  pgLiteExtensions?: string[]
 }
 
 type PrismaClientClassMocked<PrismaClientType extends new (...args: any[]) => any> = PrismaClientType extends new (
@@ -297,6 +342,7 @@ export async function getClientClass<PrismaClientType extends new (...args: any[
   if (options.usePgLite) {
     const { PGlite } = await import("@electric-sql/pglite")
     const { PrismaPGlite } = await import("pglite-prisma-adapter")
+    const contribExtensions = await loadPgliteContribExtensions(options.pgLiteExtensions)
 
     class PrismaClientMocked extends options.PrismaClient {
       pglite: InstanceType<typeof PGlite>
@@ -308,6 +354,7 @@ export async function getClientClass<PrismaClientType extends new (...args: any[
         const pglite = new PGlite("memory://", {
           relaxedDurability: true,
           initialMemory: 1024 * 1024 * 1024, // 1GB
+          ...(contribExtensions && { extensions: contribExtensions }),
         })
         const adapter = new PrismaPGlite(pglite)
 

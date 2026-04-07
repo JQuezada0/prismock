@@ -161,7 +161,7 @@ export async function createDatabaseUsingPostgres(options: CreateDatabaseUsingPo
     withFileTypes: true
   })
 
-  const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory())
+  const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory()).sort((a, b) => a.name.localeCompare(b.name));
 
   await options.execWithSetupClient([
     `DROP DATABASE IF EXISTS ${options.databaseName} WITH (FORCE);`,
@@ -190,7 +190,7 @@ export async function createDatabaseUsingMysql(options: CreateDatabaseUsingPostg
     withFileTypes: true
   })
 
-  const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory())
+  const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory()).sort((a, b) => a.name.localeCompare(b.name));
 
   await options.execWithSetupClient([
     `DROP DATABASE IF EXISTS ${options.databaseName};`,
@@ -266,7 +266,7 @@ export async function resetDatabasePostgresql(options: CreateDatabaseOptions) {
     withFileTypes: true
   })
 
-  const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory())
+  const migrationsDir = migrationsDirContents.filter((file) => file.isDirectory()).sort((a, b) => a.name.localeCompare(b.name));
 
   await client.connect()
   await client.query(`DROP SCHEMA public CASCADE; CREATE SCHEMA public;`)
