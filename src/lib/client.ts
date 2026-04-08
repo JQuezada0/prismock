@@ -10,7 +10,7 @@ import { Data, Delegates, generateDelegates } from "./prismock"
 import { applyExtensions, type ExtensionsDefinition } from "./extensions"
 import { generateDMMF } from "./dmmf"
 import { camelize } from "./helpers"
-import type { PGlite } from "@electric-sql/pglite"
+import type { Extension, Extensions, PGlite } from "@electric-sql/pglite"
 import type { PrismaPGlite } from "pglite-prisma-adapter"
 import { getGlobals, type PrismaDMMF } from "./globals"
 
@@ -244,17 +244,17 @@ export function getPgLitePrismockData(options: {
 
 async function loadPgliteContribExtensions(
   extensionNames?: string[],
-): Promise<Record<string, unknown> | undefined> {
+): Promise<Extensions | undefined> {
   if (extensionNames === undefined || extensionNames.length === 0) {
     return undefined
   }
 
-  const extensions: Record<string, unknown> = {}
+  const extensions: Extensions = {}
 
   for (const name of extensionNames) {
     const mod = (await import(
       `@electric-sql/pglite/contrib/${name}`
-    )) as Record<string, unknown>
+    )) as Record<string, Extension | undefined> & { default?: Extension }
     const ext = mod[name] ?? mod.default
     if (ext === undefined) {
       throw new Error(
