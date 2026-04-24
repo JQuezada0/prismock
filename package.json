@@ -54,8 +54,8 @@
   "devDependencies": {
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
-    "@prisma/client": "6.19.3",
-    "@prisma/dmmf": "6.19.3",
+    "@prisma/client": "6.12.0",
+    "@prisma/dmmf": "6.12.0",
     "@semantic-release/changelog": "6.0.3",
     "@semantic-release/commit-analyzer": "13.0.1",
     "@semantic-release/git": "10.0.1",
@@ -91,7 +91,7 @@
     "mysql2": "3.15.3",
     "pg": "8.16.3",
     "prettier": "2.8.8",
-    "prisma": "6.19.3",
+    "prisma": "6.12.0",
     "release-it": "19.0.6",
     "semantic-release": "24.2.7",
     "slugify": "1.6.6",
@@ -106,21 +106,21 @@
   "dependencies": {
     "@electric-sql/pglite": "0.3.14",
     "@paralleldrive/cuid2": "2.2.2",
-    "@prisma/client-runtime-utils": "npm:@prisma/client-runtime-utils@7.6.0",
-    "@prisma/dmmf-v6": "npm:@prisma/dmmf@6.19.3",
-    "@prisma/dmmf-v7": "npm:@prisma/dmmf@7.6.0",
-    "@prisma/generator-helper": "6.19.3",
-    "@prisma/generator-helper-v6": "npm:@prisma/generator-helper@6.19.3",
-    "@prisma/generator-helper-v7": "npm:@prisma/generator-helper@7.6.0",
-    "@prisma/internals": "7.6.0",
-    "@prisma/internals-v6": "npm:@prisma/internals@6.19.3",
-    "@prisma/internals-v7": "npm:@prisma/internals@7.6.0",
+    "@prisma/client-runtime-utils": "npm:@prisma/client-runtime-utils@7.4.0",
+    "@prisma/dmmf-v6": "npm:@prisma/dmmf@6.12.0",
+    "@prisma/dmmf-v7": "npm:@prisma/dmmf@7.4.0",
+    "@prisma/generator-helper": "6.12.0",
+    "@prisma/generator-helper-v6": "npm:@prisma/generator-helper@6.12.0",
+    "@prisma/generator-helper-v7": "npm:@prisma/generator-helper@7.4.0",
+    "@prisma/internals": "7.4.0",
+    "@prisma/internals-v6": "npm:@prisma/internals@6.12.0",
+    "@prisma/internals-v7": "npm:@prisma/internals@7.4.0",
     "bson": "6.10.4",
     "pglite-prisma-adapter": "0.6.1"
   },
   "peerDependencies": {
-    "@prisma/client": ">= 6.19.3",
-    "prisma": ">= 6.19.3"
+    "@prisma/client": ">= 6.10.0",
+    "prisma": ">= 6.10.0"
   },
   "files": [
     "dist/**/*.{cjs,mjs,d.ts}",
