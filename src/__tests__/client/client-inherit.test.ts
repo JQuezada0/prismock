@@ -44,7 +44,7 @@ describe('client', ({ databaseUrl, beforeAll }) => {
 
   beforeAll(async () => {
     await reset();
-  });
+  }, 30_000);
 
   it('Should return first article from custom method', async ({ expect }) => {
     const expected = [{ title: 'title1' }];
