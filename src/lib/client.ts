@@ -105,6 +105,10 @@ export class Prismock {
 
   $on() {}
 
+  $use() {
+    return this
+  }
+
   $executeRaw() {
     return Promise.resolve(0)
   }
