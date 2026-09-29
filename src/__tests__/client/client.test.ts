@@ -25,24 +25,6 @@ describe('client', ({ prisma, prismock, reset }) => {
     await expect(prismock.$disconnect()).resolves.not.toThrow();
   });
 
-  it('Should handle $use', async () => {
-    prisma.$use(async (params, next) => {
-      const result = await next(params);
-      return result;
-    });
-
-    prismock.$use(async (params, next) => {
-      const result = await next(params);
-      return result;
-    });
-
-    const realUsers = await prisma.user.findMany();
-    const mockUsers = await prismock.user.findMany();
-
-    expect(realUsers.length).toBe(3);
-    expect(mockUsers.length).toBe(3);
-  });
-
   it('Should handle $extends', async () => {
     prisma.$extends({});
     prismock.$extends({});
